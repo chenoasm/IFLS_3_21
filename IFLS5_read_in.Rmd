@@ -8,6 +8,7 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
 ```{r load libraries}
 
 library(foreign)
@@ -16,11 +17,9 @@ library(dplyr)
 
 ```
 
+```{r load and subset data}
 
-
-```{r}
-
-#load data - B3A_COV IFLS3
+#load B3A_COV IFLS3
 
 B3A_COV_3 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS3/b3a_cov.dta")
 
@@ -29,13 +28,18 @@ B3A_COV_3_B <- B3A_COV_3 %>%
                 select(pid00, hhid00, pidlink, sex, rspndnt, marstat, panel, age) %>%
                 mutate(year = 2013)
 
+#load BK_AR1
+BK_AR1_3 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS3/bk_ar1.dta")
 
+#subset
+BK_AR1_3_B <- BK_AR1_3 %>%
+              select(hhid00, pidlink, ar02b, ar09, ar15a, ar15b)
 
+#load B3A_TK4 >>> lots of missing values
+B3A_TK4_3 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS3/b3a_tk4.dta")
 
-
-
-
-
-
+#subset
+B3A_TK4_3_B <- B3A_TK4_3 %>%
+              select(hhid00, pidlink, tk53, tk54, tk55, tk56)
 
 ```
