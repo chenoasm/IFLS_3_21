@@ -1,0 +1,41 @@
+---
+title: "IFLS5_read_in"
+author: "Chenoa Schatzki-McClain and Rosa Zhoe"
+date: "March 21, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r load libraries}
+
+library(foreign)
+library(dplyr)
+
+
+```
+
+
+
+```{r}
+
+#load data - B3A_COV IFLS3
+
+B3A_COV_3 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS3/b3a_cov.dta")
+
+#add year variable and filter to selected vars
+B3A_COV_3_B <- B3A_COV_3 %>%
+                select(pid00, hhid00, pidlink, sex, rspndnt, marstat, panel, age) %>%
+                mutate(year = 2013)
+
+
+
+
+
+
+
+
+
+
+```
