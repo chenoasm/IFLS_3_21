@@ -57,12 +57,52 @@ TK4_missing <- TK_merge[!(TK_merge$pidlink %in% B3A_TK4_4$pidlink | TK_merge$tk0
 
 ```
 
+```{r B3A_DL2}
+
+#load
+B3A_DL2_4 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/b3a_dl2.dta")
+
+#subset
+B3A_DL2_4 <- B3A_DL2_4 %>%
+                select(pid07, hhid07, pidlink, dl2type)
+
+
+#load
+B3A_DL1_4 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/b3a_dl1.dta")
+
+#subset
+B3A_DL1_4 <- B3A_DL1_4 %>%
+                select(pid07, hhid07, pidlink, dl06x, dl06)
+
+
+```
+
+```{r B3A_BR1}
+
+#load
+B3A_BR1_4 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/b3a_br1.dta")
+
+#subset
+B3A_BR1_4<- B3A_BR1_4 %>%
+                select(pid07, hhid07, pidlink, br03, br04)
+
+```
+
 ```{r  merge}
 
-#first merge
-merge1 <- left_join(B3A_COV_4, B3A_TK1_4, on = c("hhid00", "pidlink"))
+#first merge cov with tk
+merged <- full_join(B3A_COV_4, TK_merge, on = c("hhid07", "pidlink"))
 
-missing1 <- merge1[!(merge1$pidlink %in% B3A_TK1_4$pidlink),] 
+missing1 <- merged[!(merged$pidlink %in% TK_merge$pidlink),] 
 
+#merge BR1 > all matched
+merged <- full_join(merged, B3A_BR1_4, on = c("hhid07", "pidlink"))
+
+# merge DL1 > all matched
+merged <- full_join(merged, B3A_DL1_4, on = c("hhid07", "pidlink"))
+
+#remove observation w/ pidlink == NA
+#merged <- merged %>%
+ #             filter(!(is.na(merged$pidlink)))
 
 ```
