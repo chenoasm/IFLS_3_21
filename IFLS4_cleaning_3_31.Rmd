@@ -1,0 +1,31 @@
+---
+title: "IFLS4_cleaning_3_31"
+author: "Chenoa Schatzki-McClain"
+date: "March 31, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load libraries}
+library(foreign)
+library(dplyr)
+```
+
+```{r load and subset data}
+
+#load B3A_COV IFLS4
+B3A_COV_4 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/b3a_cov.dta")
+
+#add year variable and filter to selected vars
+B3A_COV_4 <- B3A_COV_4 %>%
+                select(pid07, hhid07, pidlink, sex, respndnt, marstat, panel, age) %>%
+                mutate(year = 2013)
+
+
+
+
+
+```
