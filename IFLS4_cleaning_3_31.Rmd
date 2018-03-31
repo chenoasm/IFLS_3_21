@@ -14,7 +14,7 @@ library(foreign)
 library(dplyr)
 ```
 
-```{r load and subset data}
+```{r load and subset COV section}
 
 #load B3A_COV IFLS4
 B3A_COV_4 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/b3a_cov.dta")
@@ -23,9 +23,46 @@ B3A_COV_4 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/b3a_cov.dta")
 B3A_COV_4 <- B3A_COV_4 %>%
                 select(pid07, hhid07, pidlink, sex, respndnt, marstat, panel, age) %>%
                 mutate(year = 2013)
+```
 
+```{r TK section}
 
+#load B3A_TK1 IFLS4
+B3A_TK1_4 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/b3a_tk1.dta")
+#subset
+B3A_TK1_4 <- B3A_TK1_4 %>%
+                select(pid07, hhid07, pidlink, tk01, tk01a, tk03, tk04, tk05, tk06a, tk07)
 
+#load B3A_TK2 IFLS4
+B3A_TK2_4 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/b3a_tk2.dta")
+#subset
+B3A_TK2_4 <- B3A_TK2_4 %>%
+                select(pid07, hhid07, pidlink, tk22a, tk23a, tk24a, tk25a1x, tk25a1, tk25a2)
+
+#load B3A_TK4 IFLS4
+B3A_TK4_4 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/b3a_tk4.dta")
+#subset
+B3A_TK4_4 <- B3A_TK4_4 %>%
+                 select(pid07, hhid07, pidlink, tk46a, tk46b, tk46c, tk46dm, tk46dy, tk46m)
+
+#merge TK files
+
+#TK 1 and 2 include all of the same respondents
+TK_merge <- inner_join(B3A_TK1_4, B3A_TK2_4, on = c("hhid00", "pidlink"))
+
+TK_merge <- left_join(TK_merge, B3A_TK4_4, on = c("hhid00", "pidlink"))
+
+#individuals not matched in TK4 are all individuals who have never worked or who have not worked since 1999
+TK4_missing <- TK_merge[!(TK_merge$pidlink %in% B3A_TK4_4$pidlink | TK_merge$tk05 ==3 | TK_merge$tk06a == 3),] 
+
+```
+
+```{r  merge}
+
+#first merge
+merge1 <- left_join(B3A_COV_4, B3A_TK1_4, on = c("hhid00", "pidlink"))
+
+missing1 <- merge1[!(merge1$pidlink %in% B3A_TK1_4$pidlink),] 
 
 
 ```
