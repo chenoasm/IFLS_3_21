@@ -106,21 +106,21 @@ BK_AR1_spouse_link <- BK_AR1 %>%
 ```{r  merge}
 
 #first merge cov with tk
-merged <- full_join(B3A_COV_4, TK_merge, on = c("hhid07", "pid07"))
+merged <- full_join(B3A_COV_4, TK_merge, by = c("hhid07", "pid07"))
 
 missing1 <- merged[!(merged$pidlink %in% TK_merge$pidlink),] 
 
 #merge BR1 > all matched
-merged <- full_join(merged, B3A_BR1_4, on = c("hhid07", "pid07"))
+merged <- full_join(merged, B3A_BR1_4, by = c("hhid07", "pid07"))
 
 # merge DL1 > all matched
-merged <- full_join(merged, B3A_DL1_4, on = c("hhid07", "pid07"))
+merged <- full_join(merged, B3A_DL1_4, by = c("hhid07", "pid07"))
 
 #merge DL2 >> issue with matches
-#merged <- full_join(merged, B3A_DL2_4, on = c("hhid07", "pid07"))
+#merged <- full_join(merged, B3A_DL2_4, by = c("hhid07", "pid07"))
 
 #spouse info
-merged <- left_join(merged, BK_AR1_spouse_link, on = c("hhid07", "pid07"))
+merged <- left_join(merged, BK_AR1_spouse_link, by = c("hhid07", "pid07"))
 
 
 #remove observation w/ pidlink == NA
@@ -154,15 +154,33 @@ names(husbands)[2:length(husbands)] <- paste0(names(husbands)[2:length(husbands)
 
 #merge husband data >> match HH, match husband's PID w/ AR14 and vice versa
 
-wives <- left_join(wives, husbands, on = c("hhid07"= "hhid07", "ar14"=="pid07_H", "pid07" == "ar14_H"))
+wives <- left_join(wives, husbands, by = c("hhid07"= "hhid07", "ar14" = "pid07_H", "pid07" = "ar14_H"))
 
 
 ```
 
 ```{r household info}
 
+#dependents, working dependents
+
+household_mother_summary <- BK_AR1 %>%
+                        group_by(hhid07) %>%
+                        mutate(all_members = n(), all_working = sum(ar15a == 1)) %>%
+                        group_by(hhid07, ar11) %>%
+                        summarize(dependents = sum(ar09 < 15), working_dependents = sum(ar09 < 15 & ar15a == 1), other_HHM =  mean(all_members) - sum(ar09 <15), other_working = mean(all_working) - sum(ar09 < 15 & ar15a == 1))
 
 
+#add dependents and working dependents to wives' data
+wives <- wives %>%
+            left_join(household_mother_summary, by = c("hhid07" = "hhid07", "pid07" = "ar11"))
+
+
+
+
+
+
+
+bk_SC_4 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/bk_sc.dta")
 
 
 
