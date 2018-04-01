@@ -59,12 +59,12 @@ TK4_missing <- TK_merge[!(TK_merge$pidlink %in% B3A_TK4_4$pidlink | TK_merge$tk0
 
 ```{r B3A_DL2}
 
-#load
-B3A_DL2_4 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/b3a_dl2.dta")
+#load >> DL2 ids don't match well when merged later. not sure why
+#B3A_DL2_4 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/b3a_dl2.dta")
 
 #subset
-B3A_DL2_4 <- B3A_DL2_4 %>%
-                select(pid07, hhid07, pidlink, dl2type)
+#B3A_DL2_4 <- B3A_DL2_4 %>%
+               # select(pid07, hhid07, pidlink, dl2type)
 
 
 #load
@@ -88,21 +88,84 @@ B3A_BR1_4<- B3A_BR1_4 %>%
 
 ```
 
+```{r BK_AR1}
+
+#load
+BK_AR1 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/bk_ar1.dta")
+
+#subset
+BK_AR1 <- BK_AR1 %>%
+                select(pid07, hhid07, pidlink, ar02, ar13, ar14, ar09, ar10, ar11, ar02b, ar15a)
+
+BK_AR1_spouse_link <- BK_AR1 %>%
+                select(pid07, hhid07, pidlink, ar13, ar14)
+
+```
+
+
 ```{r  merge}
 
 #first merge cov with tk
-merged <- full_join(B3A_COV_4, TK_merge, on = c("hhid07", "pidlink"))
+merged <- full_join(B3A_COV_4, TK_merge, on = c("hhid07", "pid07"))
 
 missing1 <- merged[!(merged$pidlink %in% TK_merge$pidlink),] 
 
 #merge BR1 > all matched
-merged <- full_join(merged, B3A_BR1_4, on = c("hhid07", "pidlink"))
+merged <- full_join(merged, B3A_BR1_4, on = c("hhid07", "pid07"))
 
 # merge DL1 > all matched
-merged <- full_join(merged, B3A_DL1_4, on = c("hhid07", "pidlink"))
+merged <- full_join(merged, B3A_DL1_4, on = c("hhid07", "pid07"))
+
+#merge DL2 >> issue with matches
+#merged <- full_join(merged, B3A_DL2_4, on = c("hhid07", "pid07"))
+
+#spouse info
+merged <- left_join(merged, BK_AR1_spouse_link, on = c("hhid07", "pid07"))
+
 
 #remove observation w/ pidlink == NA
 #merged <- merged %>%
  #             filter(!(is.na(merged$pidlink)))
+
+```
+
+```{r}
+
+# filter to just include wives
+
+wives <- merged %>%
+            filter(sex == 3, marstat == 2)
+
+```
+
+```{r}
+
+#subset data on husbands
+husbands <- merged %>%
+              filter(sex == 1, marstat == 2) %>%
+              select(hhid07, pid07, tk24a, tk25a1x, tk25a1, tk25a2, tk46a, tk46b, tk46c, tk46m, tk01, tk01a, tk03, tk04, tk05, tk06a, tk07, dl06, dl06x, ar14)
+
+#rename husband vars
+names(husbands)[2:length(husbands)] <- paste0(names(husbands)[2:length(husbands)], "_H") 
+
+```
+
+```{r add husband data to wives}
+
+#merge husband data >> match HH, match husband's PID w/ AR14 and vice versa
+
+wives <- left_join(wives, husbands, on = c("hhid07"= "hhid07", "ar14"=="pid07_H", "pid07" == "ar14_H"))
+
+
+```
+
+```{r household info}
+
+
+
+
+
+
+
 
 ```
