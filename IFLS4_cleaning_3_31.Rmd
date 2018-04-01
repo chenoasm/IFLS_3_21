@@ -174,14 +174,16 @@ household_mother_summary <- BK_AR1 %>%
 wives <- wives %>%
             left_join(household_mother_summary, by = c("hhid07" = "hhid07", "pid07" = "ar11"))
 
+#province and urban/rural
 
+BK_SC_4 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/bk_sc.dta")
 
+BK_SC_4 <- BK_SC_4 %>%
+              select(hhid07, sc05, sc010707) 
 
-
-
-
-bk_SC_4 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/bk_sc.dta")
-
+#add hh geo data to wives data
+wives <- wives %>%
+            left_join(BK_SC_4, on = "hhid07")
 
 
 
