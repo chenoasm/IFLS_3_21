@@ -1,5 +1,5 @@
 ---
-title: "IFLS4_cleaning_3_31"
+title: "IFLS5_cleaning"
 author: "Chenoa Schatzki-McClain"
 date: "March 31, 2018"
 output: pdf_document
@@ -14,44 +14,43 @@ library(foreign)
 library(dplyr)
 ```
 
-
 ```{r load and subset COV section}
 
-#load B3A_COV IFLS4
-B3A_COV <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/b3a_cov.dta")
+#load B3A_COV IFLS5
+B3A_COV <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS5/b3a_cov.dta")
 
 #add year variable and filter to selected vars
 B3A_COV <- B3A_COV %>%
-                select(pid07, hhid07, pidlink, sex, respndnt, marstat, panel, age) %>%
-                mutate(year = 2013)
+                select(pid14, hhid14, hhid14_9, pidlink, sex, rspndnt, marstat, panel, age) %>%
+                mutate(year = 2014)
 ```
 
 ```{r TK section}
 
-#load B3A_TK1 IFLS4
-B3A_TK1 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/b3a_tk1.dta")
+#load B3A_TK1 IFLS5
+B3A_TK1 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS5/b3a_tk1.dta")
 #subset
 B3A_TK1 <- B3A_TK1 %>%
-                select(pid07, hhid07, pidlink, tk01, tk01a, tk03, tk04, tk05, tk06a, tk07)
+                select(pid14, hhid14, hhid14_9, pidlink, tk01, tk01a, tk03, tk04, tk05, tk06a, tk07)
 
-#load B3A_TK2 IFLS4
-B3A_TK2 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/b3a_tk2.dta")
+#load B3A_TK2 IFLS5
+B3A_TK2 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS5/b3a_tk2.dta")
 #subset
 B3A_TK2 <- B3A_TK2 %>%
-                select(pid07, hhid07, pidlink, tk22a, tk23a, tk24a, tk25a1x, tk25a1, tk25a2)
+                select(pid14, hhid14, hhid14_9, pidlink, tk22a, tk23a, tk24a, tk25a1x, tk25a1, tk25a2)
 
-#load B3A_TK4 IFLS4
-B3A_TK4 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/b3a_tk4.dta")
+#load B3A_TK4 IFLS5
+B3A_TK4 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS5/b3a_tk4.dta")
 #subset
 B3A_TK4 <- B3A_TK4 %>%
-                 select(pid07, hhid07, pidlink, tk46a, tk46b, tk46c, tk46dm, tk46dy, tk46m)
+                 select(pid14, hhid14, hhid14_9, pidlink, tk46a, tk46b, tk46c, tk46dm, tk46dy, tk46m)
 
 #merge TK files
 
 #TK 1 and 2 include all of the same respondents
-TK_merge <- inner_join(B3A_TK1, B3A_TK2, on = c("hhid00", "pidlink"))
+TK_merge <- inner_join(B3A_TK1, B3A_TK2, by = c("hhid14", "hhid14_9", "pid14"))
 
-TK_merge <- left_join(TK_merge, B3A_TK4, on = c("hhid00", "pidlink"))
+TK_merge <- left_join(TK_merge, B3A_TK4, by = c("hhid14", "hhid14_9", "pid14"))
 
 #individuals not matched in TK4 are all individuals who have never worked or who have not worked since 1999
 TK4_missing <- TK_merge[!(TK_merge$pidlink %in% B3A_TK4$pidlink | TK_merge$tk05 ==3 | TK_merge$tk06a == 3),] 
@@ -61,19 +60,19 @@ TK4_missing <- TK_merge[!(TK_merge$pidlink %in% B3A_TK4$pidlink | TK_merge$tk05 
 ```{r B3A_DL2}
 
 #load >> DL2 ids don't match well when merged later. not sure why
-#B3A_DL2 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/b3a_dl2.dta")
+#B3A_DL2 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS5/b3a_dl2.dta")
 
 #subset
 #B3A_DL2 <- B3A_DL2 %>%
-               # select(pid07, hhid07, pidlink, dl2type)
+               # select(pid14, hhid14, pidlink, dl2type)
 
 
 #load
-B3A_DL1 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/b3a_dl1.dta")
+B3A_DL1 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS5/b3a_dl1.dta")
 
 #subset
 B3A_DL1 <- B3A_DL1 %>%
-                select(pid07, hhid07, pidlink, dl06x, dl06)
+                select(pid14, hhid14, pidlink, dl06x, dl06)
 
 
 ```
@@ -81,25 +80,25 @@ B3A_DL1 <- B3A_DL1 %>%
 ```{r B3A_BR1}
 
 #load
-B3A_BR1 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/b3a_br1.dta")
+B3A_BR1 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS5/b3a_br1.dta")
 
 #subset
 B3A_BR1<- B3A_BR1 %>%
-                select(pid07, hhid07, pidlink, br03, br04)
+                select(pid14, hhid14, pidlink, br03, br04)
 
 ```
 
 ```{r BK_AR1}
 
 #load
-BK_AR1 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/bk_ar1.dta")
+BK_AR1 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS5/bk_ar1.dta")
 
 #subset
 BK_AR1 <- BK_AR1 %>%
-                select(pid07, hhid07, pidlink, ar02, ar13, ar14, ar09, ar10, ar11, ar02b, ar15a)
+                select(pid14, hhid14, hhid14_9, pidlink, ar02, ar13, ar14, ar09, ar10, ar11, ar02b, ar15a)
 
 BK_AR1_spouse_link <- BK_AR1 %>%
-                select(pid07, hhid07, pidlink, ar13, ar14)
+                select(pid14, hhid14, hhid14_9, pidlink, ar13, ar14)
 
 ```
 
@@ -107,21 +106,21 @@ BK_AR1_spouse_link <- BK_AR1 %>%
 ```{r  merge}
 
 #first merge cov with tk
-merged <- full_join(B3A_COV, TK_merge, by = c("hhid07", "pid07"))
+merged <- full_join(B3A_COV, TK_merge, by = c("hhid14", "pid14", "hhid14_9"))
 
 missing1 <- merged[!(merged$pidlink %in% TK_merge$pidlink),] 
 
 #merge BR1 > all matched
-merged <- full_join(merged, B3A_BR1, by = c("hhid07", "pid07"))
+merged <- full_join(merged, B3A_BR1, by = c("hhid14", "pid14"))
 
 # merge DL1 > all matched
-merged <- full_join(merged, B3A_DL1, by = c("hhid07", "pid07"))
+merged <- full_join(merged, B3A_DL1, by = c("hhid14", "pid14"))
 
 #merge DL2 >> issue with matches
-#merged <- full_join(merged, B3A_DL2, by = c("hhid07", "pid07"))
+#merged <- full_join(merged, B3A_DL2, by = c("hhid14", "pid14"))
 
 #spouse info
-merged <- left_join(merged, BK_AR1_spouse_link, by = c("hhid07", "pid07"))
+merged <- left_join(merged, BK_AR1_spouse_link, by = c("hhid14", "pid14"))
 
 
 #remove observation w/ pidlink == NA
@@ -144,7 +143,7 @@ wives <- merged %>%
 #subset data on husbands
 husbands <- merged %>%
               filter(sex == 1, marstat == 2) %>%
-              select(hhid07, pid07, tk24a, tk25a1x, tk25a1, tk25a2, tk46a, tk46b, tk46c, tk46m, tk01, tk01a, tk03, tk04, tk05, tk06a, tk07, dl06, dl06x, ar14)
+              select(hhid14, pid14, tk24a, tk25a1x, tk25a1, tk25a2, tk46a, tk46b, tk46c, tk46m, tk01, tk01a, tk03, tk04, tk05, tk06a, tk07, dl06, dl06x, ar14)
 
 #rename husband vars
 names(husbands)[2:length(husbands)] <- paste0(names(husbands)[2:length(husbands)], "_H") 
@@ -155,7 +154,7 @@ names(husbands)[2:length(husbands)] <- paste0(names(husbands)[2:length(husbands)
 
 #merge husband data >> match HH, match husband's PID w/ AR14 and vice versa
 
-wives <- left_join(wives, husbands, by = c("hhid07"= "hhid07", "ar14" = "pid07_H", "pid07" = "ar14_H"))
+wives <- left_join(wives, husbands, by = c("hhid14"= "hhid14", "ar14" = "pid14_H", "pid14" = "ar14_H"))
 
 
 ```
@@ -165,28 +164,32 @@ wives <- left_join(wives, husbands, by = c("hhid07"= "hhid07", "ar14" = "pid07_H
 #dependents, working dependents
 
 household_mother_summary <- BK_AR1 %>%
-                        group_by(hhid07) %>%
+                        group_by(hhid14) %>%
                         mutate(all_members = n(), all_working = sum(ar15a == 1)) %>%
-                        group_by(hhid07, ar11) %>%
+                        group_by(hhid14, ar11) %>%
                         summarize(dependents = sum(ar09 < 15), working_dependents = sum(ar09 < 15 & ar15a == 1), other_HHM =  mean(all_members) - sum(ar09 <15), other_working = mean(all_working) - sum(ar09 < 15 & ar15a == 1))
 
 
 #add dependents and working dependents to wives' data
 wives <- wives %>%
-            left_join(household_mother_summary, by = c("hhid07" = "hhid07", "pid07" = "ar11"))
+            left_join(household_mother_summary, by = c("hhid14" = "hhid14", "pid14" = "ar11"))
 
 #province and urban/rural
 
-BK_SC <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/bk_sc.dta")
+BK_SC1 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS5/bk_sc1.dta")
 
-BK_SC <- BK_SC %>%
-              select(hhid07, sc05, sc010707) 
+BK_SC1 <- BK_SC1 %>%
+              select(hhid14, sc05, sc01_14_14) 
 
 #add hh geo data to wives data
 wives <- wives %>%
-            left_join(BK_SC, on = "hhid07")
+            left_join(BK_SC1, by = "hhid14")
 
 
+```
 
+```{r write data to file}
+
+write.csv(wives, file = "C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/IFLS5.csv")
 
 ```
