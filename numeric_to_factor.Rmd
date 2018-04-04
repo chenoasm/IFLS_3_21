@@ -1,0 +1,65 @@
+---
+title: '"Convert Numeric Vectors to Coded Factors"'
+author: "Chenoa Schatzki-McClain"
+date: "April 4, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load files}
+
+# Load IFLS4 << numeric vectors
+IFLS4 <- read.csv("C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/IFLS4.csv")
+
+# Load IFLS5 << labeled factors
+IFLS5 <- read.csv("C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/IFLS5.csv")
+
+```
+
+```{r}
+
+convert <- function(var){
+  temp <- as.factor(IFLS4[,var])
+  
+  #check that all levels are present and the same in both datasets >> could still be issues if coding is inconsistent
+  if(length(levels(temp)) == length(levels(IFLS5[,var]))){
+    if(sum(levels(temp) == substr(levels(IFLS5[, var]), 1, 1))== length(levels(temp))){
+  levels(temp) <- levels(IFLS5[,var])}}
+  return(temp)
+}
+
+```
+
+```{r}
+
+#vector of vars to convert
+#careful! if some responses aren't represented in sample, levels will be different for datasets
+#confirm that levels are the same in both datasets
+
+#codes for some vars not present in IFLS5, will need to recode manually
+
+#vars <- c("sex", "rspndnt", "marstat", "panel", "tk01", "tk01a", "tk03", "tk04", "tk05", "tk06a", "tk07", "tk24a", "tk46a", "tk46b", "tk46m", "dl06x", "dl06", "ar13", "tk24a_H", "tk46a_H", "tk46b_H", "tk46c_H", "tk46m_H", "tk01_H", "tk01a_H", "tk03_H", "tk04_H", "dl06_H", "dl06x_H", "sc05")
+
+
+
+#dynamic version >> list of vars for which type == class in IFLS5
+vars <- names(IFLS5)[class(IFLS5[,names(IFLS5)]) == "factor"]
+
+for (i in 1:length(vars)){
+  IFLS4[,i] <- convert(i)
+}
+
+sum(levels(as.factor(IFLS4$dl06x_H)) == substr(levels(IFLS5$dl06x_H), 1, 1))== length(levels(as.factor(IFLS4$dl06x_H)))
+
+length(levels(as.factor(IFLS4$dl06x_H))) == length(levels(IFLS5$dl06x_H))
+
+#issue here
+sum(levels(as.factor(IFLS4$tk46dm)) == substr(levels(IFLS5$tk46dm), 1, 1))== length(levels(as.factor(IFLS4$tk46dm)))
+
+length(levels(as.factor(IFLS4$tk46dm))) == length(levels(IFLS5$tk46dm))
+
+
+```
