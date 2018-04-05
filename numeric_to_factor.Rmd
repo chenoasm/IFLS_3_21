@@ -88,12 +88,10 @@ for (i in 1:length(vars)){
   if(length(levels(IFLS4[,vars[i]])) != length(levels(IFLS5[,vars[i]]))){
     level_missing <- c(level_missing,vars[i])
   }
-  else if(sum(levels(IFLS4[,vars[i]]) == levels(IFLS5[,vars[i]])) != length(levels(IFLS4))){
-    level_missing <- c(level_missing,vars[i])
+  else if(sum(levels(IFLS4[,vars[i]]) == levels(IFLS5[,vars[i]])) != length(levels(IFLS4[,vars[i]]))){
+    level_missing <- c(level_missing,paste0(vars[i], "**"))
   }
 }
-
-
-  
+ 
 ```
 
