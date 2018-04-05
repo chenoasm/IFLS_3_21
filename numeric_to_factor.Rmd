@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r load libraries}
 library(stringr)
+
 ```
 
 
@@ -21,6 +22,41 @@ IFLS4 <- read.csv("C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/IFLS4.csv")
 
 # Load IFLS5 << labeled factors
 IFLS5 <- read.csv("C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/IFLS5.csv")
+
+#relabel "respndnt" as "rspndnt" in IFLS4 to match IFLS5 and codebooks
+names(IFLS4)[names(IFLS4) == "respndnt"] <- "rspndnt"
+
+```
+
+```{r list factor vars}
+
+#list of vars for which type == class in IFLS5
+vars <- names(IFLS5)[sapply(IFLS5[,names(IFLS5)], class) == "factor"]
+
+```
+
+```{r releveling function}
+
+relevel_IFLS5 <- function(var){
+
+  lev <- levels(IFLS5[,var])
+  num <- as.numeric(str_extract(levels(IFLS5[,var]), "^[\\d]+(?=:)"))
+  num <- sort(num)
+  lev2 <- vector(length = length(lev))
+  for (i in 1:length(lev)){
+    lev2[i] <- lev[as.numeric(str_extract(levels(IFLS5[,var]), "^[\\d]+(?=:)")) == num[i]]
+  }
+  return(lev2)
+  
+}
+
+```
+
+```{r apply releveling function}
+
+for (i in 1:length(vars)){
+levels(IFLS5[,vars[i]]) <-  relevel_IFLS5(vars[i])
+}
 
 ```
 
@@ -38,74 +74,26 @@ convert <- function(var){
 
 ```
 
-```{r}
+```{r convert factors}
 
-#vector of vars to convert
-#careful! if some responses aren't represented in sample, levels will be different for datasets
-#confirm that levels are the same in both datasets
-
-#codes for some vars not present in IFLS5, will need to recode manually
-
-#vars <- c("sex", "rspndnt", "marstat", "panel", "tk01", "tk01a", "tk03", "tk04", "tk05", "tk06a", "tk07", "tk24a", "tk46a", "tk46b", "tk46m", "dl06x", "dl06", "ar13", "tk24a_H", "tk46a_H", "tk46b_H", "tk46c_H", "tk46m_H", "tk01_H", "tk01a_H", "tk03_H", "tk04_H", "dl06_H", "dl06x_H", "sc05")
-
-
-#dynamic version >> list of vars for which type == class in IFLS5
-vars <- names(IFLS5)[sapply(IFLS5[,names(IFLS5)], class) == "factor"]
 
 for (i in 1:length(vars)){
-  IFLS4[,i] <- convert(i)
+  IFLS4[,vars[i]] <- convert(vars[i])
 }
 
-sum(levels(as.factor(IFLS4$dl06x_H)) == substr(levels(IFLS5$dl06x_H), 1, 1))== length(levels(as.factor(IFLS4$dl06x_H)))
+level_missing <- c()
 
-length(levels(as.factor(IFLS4$dl06x_H))) == length(levels(IFLS5$dl06x_H))
-
-#issue here
-sum(levels(as.factor(IFLS4$tk46dm)) == substr(levels(IFLS5$tk46dm), 1, 1))== length(levels(as.factor(IFLS4$tk46dm)))
-
-length(levels(as.factor(IFLS4$tk46dm))) == length(levels(IFLS5$tk46dm))
-
-length(levels(IFLS4$tk01a)) == length(levels(IFLS5[,"tk01a"]))
-
-
-
-levels(IFLS4$tk01a)
-
-levels(IFLS5$tk01a)
-
-
-show_levels <- function(var){
-  temp <- IFLS5[,var]
-  return(levels(temp))
-}
-
-sapply(vars, show_levels)
-
-  
-```
-
-```{r releveling function}
-
-relevel <- function(var){
-  
-var <- "tk46dm"
-
-  lev <- levels(IFLS5[,var])
-  num <- as.numeric(str_extract(levels(IFLS5[,var]), "^[\\d]+(?=:)"))
-  num <- sort(num)
-  lev2 <- vector(length = length(lev))
-  for (i in 1:length(lev)){
-    lev2[i] <- lev[as.numeric(str_extract(levels(IFLS5[,var]), "^[\\d]+(?=:)")) == num[i]]
+#develop a list of vars in which levels don't match across survey years
+for (i in 1:length(vars)){
+  if(length(levels(IFLS4[,vars[i]])) != length(levels(IFLS5[,vars[i]]))){
+    level_missing <- c(level_missing,vars[i])
   }
-  return(lev2)
-  
+  else if(sum(levels(IFLS4[,vars[i]]) == levels(IFLS5[,vars[i]])) != length(levels(IFLS4))){
+    level_missing <- c(level_missing,vars[i])
+  }
 }
 
+
+  
 ```
 
-```{r apply releveling function}
-
-
-
-
-```
