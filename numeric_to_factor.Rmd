@@ -9,6 +9,11 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r load libraries}
+library(stringr)
+```
+
+
 ```{r load files}
 
 # Load IFLS4 << numeric vectors
@@ -19,14 +24,14 @@ IFLS5 <- read.csv("C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/IFLS5.csv")
 
 ```
 
-```{r}
+```{r function to convert IFLS4 vectors to labeled factors}
 
 convert <- function(var){
   temp <- as.factor(IFLS4[,var])
   
   #check that all levels are present and the same in both datasets >> could still be issues if coding is inconsistent
   if(length(levels(temp)) == length(levels(IFLS5[,var]))){
-    if(sum(levels(temp) == substr(levels(IFLS5[, var]), 1, 1))== length(levels(temp))){
+    if(sum(levels(temp) == str_extract(levels(IFLS5[,var]), "^[\\d]+(?=:)"))== length(levels(temp))){
   levels(temp) <- levels(IFLS5[,var])}}
   return(temp)
 }
@@ -44,9 +49,8 @@ convert <- function(var){
 #vars <- c("sex", "rspndnt", "marstat", "panel", "tk01", "tk01a", "tk03", "tk04", "tk05", "tk06a", "tk07", "tk24a", "tk46a", "tk46b", "tk46m", "dl06x", "dl06", "ar13", "tk24a_H", "tk46a_H", "tk46b_H", "tk46c_H", "tk46m_H", "tk01_H", "tk01a_H", "tk03_H", "tk04_H", "dl06_H", "dl06x_H", "sc05")
 
 
-
 #dynamic version >> list of vars for which type == class in IFLS5
-vars <- names(IFLS5)[class(IFLS5[,names(IFLS5)]) == "factor"]
+vars <- names(IFLS5)[sapply(IFLS5[,names(IFLS5)], class) == "factor"]
 
 for (i in 1:length(vars)){
   IFLS4[,i] <- convert(i)
@@ -60,6 +64,48 @@ length(levels(as.factor(IFLS4$dl06x_H))) == length(levels(IFLS5$dl06x_H))
 sum(levels(as.factor(IFLS4$tk46dm)) == substr(levels(IFLS5$tk46dm), 1, 1))== length(levels(as.factor(IFLS4$tk46dm)))
 
 length(levels(as.factor(IFLS4$tk46dm))) == length(levels(IFLS5$tk46dm))
+
+length(levels(IFLS4$tk01a)) == length(levels(IFLS5[,"tk01a"]))
+
+
+
+levels(IFLS4$tk01a)
+
+levels(IFLS5$tk01a)
+
+
+show_levels <- function(var){
+  temp <- IFLS5[,var]
+  return(levels(temp))
+}
+
+sapply(vars, show_levels)
+
+  
+```
+
+```{r releveling function}
+
+relevel <- function(var){
+  
+var <- "tk46dm"
+
+  lev <- levels(IFLS5[,var])
+  num <- as.numeric(str_extract(levels(IFLS5[,var]), "^[\\d]+(?=:)"))
+  num <- sort(num)
+  lev2 <- vector(length = length(lev))
+  for (i in 1:length(lev)){
+    lev2[i] <- lev[as.numeric(str_extract(levels(IFLS5[,var]), "^[\\d]+(?=:)")) == num[i]]
+  }
+  return(lev2)
+  
+}
+
+```
+
+```{r apply releveling function}
+
+
 
 
 ```
