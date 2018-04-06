@@ -187,6 +187,30 @@ wives <- wives %>%
 
 ```
 
+
+```{r recoding to match IFLS5}
+
+recode_9s <- c("tk01a", "tk03", "tk04", "tk46a", "tk24a", "tk46a", "tk46a_H", "tk24a_H", "tk01_H", "tk01a_H", "tk03_H", "tk04_H", "dl06_H")
+
+for (i in 1:length(recode_9s)){
+
+wives[,recode_9s[i]] <- ifelse(wives[,recode_9s[i]] == 9, NA, wives[,recode_9s[i]])
+
+}
+
+#recode tk46m_H
+wives$tk46m_H <- ifelse(wives$tk46m_H == 95 | wives$tk46m_H == 99, NA, wives$tk46m_H)
+
+
+#recode tk01
+wives$tk01 <- ifelse(wives$tk01 == 9, NA, wives$tk01)
+
+
+
+```
+
+
+
 ```{r write data to file}
 
 write.csv(wives, file = "C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/IFLS4.csv")

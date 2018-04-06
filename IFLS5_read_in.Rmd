@@ -191,6 +191,28 @@ wives <- wives %>%
             left_join(BK_SC1, by = "hhid14")
 
 
+
+
+```
+
+```{r recode to match IFLS4}
+
+wives$tk01 <- ifelse(wives$tk01 == "95:Other", NA, wives$tk01)
+wives$tk01_H <- ifelse(wives$tk01_H == "95:Other", NA, wives$tk01_H)
+
+
+
+#recode tk01a, tk03, tk24
+wives$tk01a <- ifelse(wives$tk01a ==  "8:Don't Know", NA, wives$tk01a)
+wives$tk03 <- ifelse(wives$tk03 == "8:Don't Know", NA, wives$tk03)
+wives$tk24a <- ifelse(wives$tk24a == "8:Don't Know", NA, wives$tk24a)
+
+#recode tk46m_H
+wives$tk46m_H <- ifelse(wives$tk46m_H == 95 | wives$tk46m_H == 99, NA, wives$tk46m_H)
+
+
+#remove weird case with inconsistent marrital status
+
 ```
 
 ```{r write data to file}
