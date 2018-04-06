@@ -9,6 +9,12 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r clear environment}
+
+rm(list=ls())
+
+```
+
 ```{r load libraries}
 library(foreign)
 library(dplyr)
@@ -212,6 +218,8 @@ wives$tk46m_H <- ifelse(wives$tk46m_H == 95 | wives$tk46m_H == 99, NA, wives$tk4
 
 
 #remove weird case with inconsistent marrital status
+wives <- wives %>%
+            filter(paste0(marstat) == paste0(ar13))
 
 ```
 

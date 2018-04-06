@@ -9,6 +9,12 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r clear environment}
+
+rm(list=ls())
+
+```
+
 ```{r load libraries}
 library(foreign)
 library(dplyr)
@@ -205,11 +211,11 @@ wives$tk46m_H <- ifelse(wives$tk46m_H == 95 | wives$tk46m_H == 99, NA, wives$tk4
 #recode tk01
 wives$tk01 <- ifelse(wives$tk01 == 9, NA, wives$tk01)
 
-
+#recode tk04 and tk04_H to match IFLS5 >> for whatever reason "no" (3) was omitted from responses in IFLS5
+wives$tk04 <- ifelse(wives$tk04 == 3, NA, wives$tk04)
+wives$tk04_H <- ifelse(wives$tk04_H == 3, NA, wives$tk04_H)
 
 ```
-
-
 
 ```{r write data to file}
 
