@@ -188,3 +188,9 @@ names(IFLS5)[c(2,3,4,40,66)] <- c("pid", "hhid", "hhid_9", "hhid_9.y", "sc_code"
 IFLS_4_5 <- bind_rows(IFLS4, IFLS5)
 
 ```
+
+```{r write to CSV}
+
+write.csv(IFLS_4_5, file = "C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/IFLS_4_5.csv")
+
+```
