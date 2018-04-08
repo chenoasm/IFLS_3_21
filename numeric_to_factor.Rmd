@@ -184,8 +184,23 @@ for (i in 1:length(vars)){
 names(IFLS4)[c(2,3,4,40,66)] <- c("pid", "hhid", "hhid_9", "hhid_9.y", "sc_code")
 names(IFLS5)[c(2,3,4,40,66)] <- c("pid", "hhid", "hhid_9", "hhid_9.y", "sc_code")
 
+#identify houses repeated across surveys
+
+repeated <- c()
+
+for (i in 1:length(IFLS4$pidlink)){
+  
+  if (IFLS4$pidlink[i] %in% IFLS5$pidlink){
+    repeated <- c(repeated, IFLS4$pidlink[i])
+  }
+  
+}
+
 #bind
 IFLS_4_5 <- bind_rows(IFLS4, IFLS5)
+
+#subset to only include relocated houses
+IFLS_4_5 <- IFLS_4_5[which(IFLS_4_5$pidlink %in% repeated),]
 
 ```
 

@@ -9,17 +9,76 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r clear environment}
+
+rm(list=ls())
+
+```
+
 ```{r}
 
 #load data
 IFLS_4_5 <- read.csv("C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/IFLS_4_5.csv")
 
 #remove unneeded variables
-vars <- c("marstat", "sex")
+vars <- c("marstat", "sex", "pidlink.x", "pidlink.x.x", "pidlink.x.x.x", "pidlink.y", "pidlink.y.y", "pidlink.y.y.y", "X", "X.1")
 
 for (i in 1:length(vars)){
   IFLS_4_5[, vars[i]] <- NULL 
 }
 
+```
+
+```{r emp vars W}
+
+#add employment status variable
+
+IFLS_4_5$employed <- c()
+
+for (i in 1:nrow(IFLS_4_5)){
+  
+  IFLS_4_5[i, "employed"] <- ifelse(1 %in% IFLS_4_5[i,c("tk01", "tk01a", "tk03", "tk04")], "1:Employed", "2:Unemployed")
+  
+}
+
+IFLS_4_5$employed <- as.factor(IFLS_4_5$employed)
+
+#add ever worked var based on employed and tk05
+
+IFLS_4_5$ever_emp <- ifelse(IFLS_4_5$employed == "1:Employed", 1, IFLS_4_5$tk05)
+
+IFLS_4_5$ever_emp <- as.factor(IFLS_4_5$ever_emp)
+
+
+levels(IFLS_4_5$ever_emp) <- c("1:Yes", "2:No")
 
 ```
+
+```{r emp vars H}
+
+#add employment status variable
+
+IFLS_4_5$employed_H <- c()
+
+for (i in 1:nrow(IFLS_4_5)){
+  
+  IFLS_4_5[i, "employed_H"] <- ifelse(1 %in% IFLS_4_5[i,c("tk01_H", "tk01a_H", "tk03_H", "tk04_H")], "1:Employed", "2:Unemployed")
+  
+}
+
+IFLS_4_5$employed_H <- as.factor(IFLS_4_5$employed_H)
+
+#add ever worked var based on employed and tk05
+
+IFLS_4_5$ever_emp_H <- ifelse(IFLS_4_5$employed_H == "1:Employed", 1, IFLS_4_5$tk05_H)
+
+IFLS_4_5$ever_emp_H <- as.factor(IFLS_4_5$ever_emp_H)
+
+
+levels(IFLS_4_5$ever_emp_H) <- c("1:Yes", "2:No")
+
+
+```
+
+
+
