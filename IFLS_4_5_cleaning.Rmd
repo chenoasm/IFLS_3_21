@@ -1,0 +1,25 @@
+---
+title: "IFLS_4_5 Cleaning"
+author: "Chenoa Schatzki-McClain"
+date: "April 7, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+#load data
+IFLS_4_5 <- read.csv("C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/IFLS_4_5.csv")
+
+#remove unneeded variables
+vars <- c("marstat", "sex")
+
+for (i in 1:length(vars)){
+  IFLS_4_5[, vars[i]] <- NULL 
+}
+
+
+```
