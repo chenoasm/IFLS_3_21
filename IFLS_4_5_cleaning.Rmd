@@ -45,7 +45,7 @@ IFLS_4_5$employed <- as.factor(IFLS_4_5$employed)
 
 #add ever worked var based on employed and tk05
 
-IFLS_4_5$ever_emp <- ifelse(IFLS_4_5$employed == "1:Employed", 1, IFLS_4_5$tk05)
+IFLS_4_5$ever_emp <- ifelse(IFLS_4_5$employed == "1:Employed"| IFLS_4_5$tk06a_H == 1, 1, IFLS_4_5$tk05)
 
 IFLS_4_5$ever_emp <- as.factor(IFLS_4_5$ever_emp)
 
@@ -68,9 +68,9 @@ for (i in 1:nrow(IFLS_4_5)){
 
 IFLS_4_5$employed_H <- as.factor(IFLS_4_5$employed_H)
 
-#add ever worked var based on employed and tk05
+#add ever worked var based on employed, tk05, and tk06a
 
-IFLS_4_5$ever_emp_H <- ifelse(IFLS_4_5$employed_H == "1:Employed", 1, IFLS_4_5$tk05_H)
+IFLS_4_5$ever_emp_H <- ifelse(IFLS_4_5$employed_H == "1:Employed" | IFLS_4_5$tk06a_H == 1, 1, IFLS_4_5$tk05_H)
 
 IFLS_4_5$ever_emp_H <- as.factor(IFLS_4_5$ever_emp_H)
 
@@ -80,5 +80,33 @@ levels(IFLS_4_5$ever_emp_H) <- c("1:Yes", "2:No")
 
 ```
 
+```{r}
+
+#job loss in last 5 years
+
+IFLS_4_5$job_loss <- ifelse(IFLS_4_5$ever_emp == "3:No" | IFLS_4_5$tk46a == "3:No", 2, IFLS_4_5$tk46b)
+
+IFLS_4_5$job_loss_H <- ifelse(IFLS_4_5$ever_emp_H == "3:No" | IFLS_4_5$tk46a_H == "3:No", 2, IFLS_4_5$tk46b_H)
+
+#multiple job losses
 
 
+
+```
+
+```{r hours}
+
+#wage info available??
+
+#lots of missing wage info, even for workers in private sector
+length(IFLS_4_5[which((is.na(IFLS_4_5$tk25a1_H)) & as.numeric(IFLS_4_5$employed_H) == 1),1])
+length(IFLS_4_5[which((is.na(IFLS_4_5$tk25a1_H)) & as.numeric(IFLS_4_5$tk24a) == 5),1])
+
+#job type available >>> job type is available for almost all workers >> could serve as a proxy for wage
+length(IFLS_4_5[which((is.na(IFLS_4_5$tk24a)) & as.numeric(IFLS_4_5$employed) == 1),1])
+length(IFLS_4_5[which((is.na(IFLS_4_5$tk24a_H)) & as.numeric(IFLS_4_5$employed_H) == 1),1])
+
+
+
+
+```

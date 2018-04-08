@@ -82,7 +82,7 @@ B3A_DL1 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS5/b3a_dl1.dta")
 
 #subset
 B3A_DL1 <- B3A_DL1 %>%
-                select(pid14, hhid14, pidlink, dl06x, dl06)
+                select(pid14, hhid14, pidlink, dl06x, dl06, dl04)
 
 
 ```
