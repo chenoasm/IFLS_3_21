@@ -1,0 +1,42 @@
+---
+title: "Data Summaries"
+author: "Chenoa Schatzki-McClain"
+date: "April 10, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+
+```{r}
+
+#filter to only include urban households
+urban <- IFLS_4_5 %>%
+        filter(sc05 == "1:Urban")
+
+#filter to show only husbands from urban HH that lost jobs
+urban_jl <- IFLS_4_5 %>%
+        filter (sc05 == "1:Urban" & job_loss_H == 1)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```

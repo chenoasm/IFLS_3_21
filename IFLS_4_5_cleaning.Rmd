@@ -110,3 +110,23 @@ length(IFLS_4_5[which((is.na(IFLS_4_5$tk24a_H)) & as.numeric(IFLS_4_5$employed_H
 
 
 ```
+
+```{r}
+
+#remove unneeded variables
+
+#remove unneeded variables
+vars2 <- c("tk01a", "tk03", "tk04", "tk05", "tk06a", "tk07", "tk25a1x", "tk46a", "tk46b", "dl06x", "ar13", "tk25a1x_H", "tk46a_H", "tk46b_H", "dl06x_H", "dl04_H")
+
+for (i in 1:length(vars)){
+  IFLS_4_5[, vars[i]] <- NULL 
+}
+
+
+```
+
+```{r}
+
+write.csv(IFLS_4_5, file = "C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/clean_4_10.csv")
+
+```
