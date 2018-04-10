@@ -82,6 +82,14 @@ levels(IFLS_4_5$ever_emp_H) <- c("1:Yes", "2:No")
 
 ```{r}
 
+#fix age top-coding
+
+IFLS_4_5$age_H <- ifelse(IFLS_4_5$age_H == 998, NA, IFLS_4_5$age_H)
+
+```
+
+```{r}
+
 #job loss in last 5 years
 
 IFLS_4_5$job_loss <- ifelse(IFLS_4_5$ever_emp == "3:No" | IFLS_4_5$tk46a == "3:No", 2, IFLS_4_5$tk46b)

@@ -6,36 +6,65 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 ```
 
+```{r}
+library(dplyr)
 
-
+```
 
 ```{r}
+#load data
+clean <- read.csv("C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/clean_4_10.csv")
 
 #filter to only include urban households
-urban <- IFLS_4_5 %>%
+urban <- clean %>%
         filter(sc05 == "1:Urban")
 
 #filter to show only husbands from urban HH that lost jobs
-urban_jl <- IFLS_4_5 %>%
+urban_jl <- clean %>%
         filter (sc05 == "1:Urban" & job_loss_H == 1)
+
+#filter to urban HH w/ employed husband
+emp_wives <- urban %>%
+        filter(employed == "1:Employed")
+
+#filter to urban HH w/ employed husband
+emp_husbands <- urban %>%
+        filter(employed_H == "1:Employed")
+
+
 
 ```
 
+```{r}
 
+#wives' ages
+summary(urban$age)
 
+#husbands' ages
+summary(urban$age_H)
 
+#wives'educational attainment
+summary(urban$dl06)
 
+#husbands' educational attainment
+summary(urban$dl06_H)
 
+#wives employment status
+summary(urban$employed)
 
+#husbands' employment status
+summary(urban$employed_H)
 
+#number of dependents
+summary(urban$dependents)
+summary(urban$working_dependents)
 
-
-
-
-
+#number of other HH members
+summary(urban$other_HHM)
+summary(urban$other_working)
 
 
 
