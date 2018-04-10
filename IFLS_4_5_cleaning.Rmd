@@ -21,7 +21,7 @@ rm(list=ls())
 IFLS_4_5 <- read.csv("C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/IFLS_4_5.csv")
 
 #remove unneeded variables
-vars <- c("marstat", "sex", "pidlink.x", "pidlink.x.x", "pidlink.x.x.x", "pidlink.y", "pidlink.y.y", "pidlink.y.y.y", "X", "X.1")
+vars <- c("marstat", "sex", "pidlink.x", "pidlink.x.x", "pidlink.x.x.x", "pidlink.y", "pidlink.y.y", "pidlink.y.y.y", "X", "X.1", "br03", "br04")
 
 for (i in 1:length(vars)){
   IFLS_4_5[, vars[i]] <- NULL 
@@ -37,7 +37,7 @@ IFLS_4_5$employed <- c()
 
 for (i in 1:nrow(IFLS_4_5)){
   
-  IFLS_4_5[i, "employed"] <- ifelse(1 %in% IFLS_4_5[i,c("tk01", "tk01a", "tk03", "tk04")], "1:Employed", "2:Unemployed")
+  IFLS_4_5[i, "employed"] <- ifelse(1 %in% as.numeric(IFLS_4_5[i,c("tk01", "tk01a", "tk03", "tk04")]), "1:Employed", "2:Unemployed")
   
 }
 
@@ -62,7 +62,7 @@ IFLS_4_5$employed_H <- c()
 
 for (i in 1:nrow(IFLS_4_5)){
   
-  IFLS_4_5[i, "employed_H"] <- ifelse(1 %in% IFLS_4_5[i,c("tk01_H", "tk01a_H", "tk03_H", "tk04_H")], "1:Employed", "2:Unemployed")
+  IFLS_4_5[i, "employed_H"] <- ifelse(1 %in% as.numeric(IFLS_4_5[i,c("tk01_H", "tk01a_H", "tk03_H", "tk04_H")]), "1:Employed", "2:Unemployed")
   
 }
 

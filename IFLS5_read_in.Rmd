@@ -154,10 +154,11 @@ wives <- merged %>%
 #subset data on husbands
 husbands <- merged %>%
               filter(as.numeric(sex) == 1, as.numeric(marstat) == 2) %>%
-              select(hhid14, pid14, tk24a, tk25a1x, tk25a1, tk25a2, tk46a, tk46b, tk46c, tk46m, tk01, tk01a, tk03, tk04, tk05, tk06a, tk07, dl06, dl06x, ar14)
+              select(hhid14, pid14, tk24a, tk25a1x, tk25a1, tk25a2, tk46a, tk46b, tk46c, tk46dm, tk46dy, tk46m, tk01, tk01a, tk03, tk04, tk05, tk06a, tk07, dl04, dl06, dl06x, ar14)
 
 #rename husband vars
 names(husbands)[2:length(husbands)] <- paste0(names(husbands)[2:length(husbands)], "_H") 
+
 
 ```
 
@@ -203,18 +204,33 @@ wives <- wives %>%
 
 ```{r recode to match IFLS4}
 
-wives$tk01 <- ifelse(wives$tk01 == "95:Other", NA, wives$tk01)
-wives$tk01_H <- ifelse(wives$tk01_H == "95:Other", NA, wives$tk01_H)
-
-
+wives$tk01 <- ifelse(as.numeric(wives$tk01) == 7, NA, as.character(wives$tk01))
+wives$tk01_H <- ifelse(wives$tk01_H == "95:Other", NA, as.character(wives$tk01_H))
 
 #recode tk01a, tk03, tk24
-wives$tk01a <- ifelse(wives$tk01a ==  "8:Don't Know", NA, wives$tk01a)
-wives$tk03 <- ifelse(wives$tk03 == "8:Don't Know", NA, wives$tk03)
-wives$tk24a <- ifelse(wives$tk24a == "8:Don't Know", NA, wives$tk24a)
+wives$tk01a <- ifelse(wives$tk01a ==  "8:Don't Know", NA, as.character(wives$tk01a))
+wives$tk03 <- ifelse(wives$tk03 == "8:Don't Know", NA, as.character(wives$tk03))
+wives$tk24a <- ifelse(wives$tk24a == "8:Don't Know", NA, as.character(wives$tk24a))
 
 #recode tk46m_H
-wives$tk46m_H <- ifelse(wives$tk46m_H == 95 | wives$tk46m_H == 99, NA, wives$tk46m_H)
+wives$tk46m_H <- ifelse(wives$tk46m_H == "95:Other", NA, as.character(wives$tk46m_H))
+
+#recode dl04 and dl04_H
+wives$dl04 <- ifelse(wives$dl04 == "8:MISSING" | wives$dl04 == "9:Don't Know", NA, as.character(wives$dl04))
+wives$dl04_H <- ifelse(wives$dl04_H == "8:MISSING" | wives$dl04_H == "9:Don't Know", NA, as.character(wives$dl04_H))
+
+#recode tk24a
+wives$tk24a <- ifelse(wives$tk24a == "9:Missing", NA, as.character(wives$tk24a))
+
+
+#convert back to factors
+factor_vars <- c("tk01", "tk01_H", "tk01a", "tk03", "tk24a", "tk46m_H", "dl04", "dl04_H", "tk24a")
+
+for (i in 1:length(factor_vars)){
+  wives[,factor_vars[i]] <- as.factor(wives[,factor_vars[i]])
+}
+
+
 
 
 #remove weird case with inconsistent marrital status

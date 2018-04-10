@@ -149,7 +149,7 @@ wives <- merged %>%
 #subset data on husbands
 husbands <- merged %>%
               filter(sex == 1, marstat == 2) %>%
-              select(hhid07, pid07, tk24a, tk25a1x, tk25a1, tk25a2, tk46a, tk46b, tk46c, tk46m, tk01, tk01a, tk03, tk04, tk05, tk06a, tk07, dl06, dl06x, ar14)
+              select(hhid07, pid07, tk24a, tk25a1x, tk25a1, tk25a2, tk46a, tk46b, tk46c, tk46dm, tk46dy, tk46m, tk01, tk01a, tk03, tk04, tk05, tk06a, tk07, dl04, dl06, dl06x, ar14)
 
 #rename husband vars
 names(husbands)[2:length(husbands)] <- paste0(names(husbands)[2:length(husbands)], "_H") 
@@ -214,6 +214,12 @@ wives$tk01 <- ifelse(wives$tk01 == 9, NA, wives$tk01)
 #recode tk04 and tk04_H to match IFLS5 >> for whatever reason "no" (3) was omitted from responses in IFLS5
 wives$tk04 <- ifelse(wives$tk04 == 3, NA, wives$tk04)
 wives$tk04_H <- ifelse(wives$tk04_H == 3, NA, wives$tk04_H)
+
+#recode tk01
+wives$tk01 <- ifelse(wives$tk01 == 95 | wives$tk01 == 99, NA, wives$tk01)
+wives$tk01_H <- ifelse(wives$tk01_H == 95 | wives$tk01_H == 99, NA, wives$tk01_H)
+
+
 
 ```
 

@@ -6,7 +6,7 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)paste0(IFLS5$dl06[20])
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r clear environment}
@@ -41,13 +41,13 @@ IFLS4$dl06 <- paste0(IFLS4$dl06)
 #check that no new NAs were introduced
 for (i in 1:length(IFLS4$dl06)){
 IFLS4$dl06_b[i] <-
-              if(IFLS4$dl06[i] %in% c("2","11","72")) {1
-                  } else if (IFLS4$dl06[i] %in% c("3", "4", "12", "73")) {2
-                  } else if (IFLS4$dl06[i] %in% c("5", "6", "15", "74", "14")) {3
-                  } else if (IFLS4$dl06[i] %in% c("60", "61", "62", "63", "13")) {4
+              if(IFLS4$dl06[i] %in% c("2","11","72")) {2
+                  } else if (IFLS4$dl06[i] %in% c("3", "4", "12", "73")) {3
+                  } else if (IFLS4$dl06[i] %in% c("5", "6", "15", "74", "14")) {4
+                  } else if (IFLS4$dl06[i] %in% c("60", "61", "62", "63", "13")) {5
                   } else if (IFLS4$dl06[i] %in% c("17", "95", "99")) {NA
-                  } #else if (!(is.na(IFLS4$dl04[i])) & IFLS4$dl04[i] == 3) {0
-                  #}
+                  } else if (!(is.na(IFLS4$dl04[i])) & IFLS4$dl04[i] == 3) {1
+                  }
 else {NA}
 }
      
@@ -55,14 +55,14 @@ else {NA}
 #IFLS5 >>> NOTE: KINDERGARTEN CATEGROIZED AS ELEMENTARY
 
 for (i in 1:length(IFLS5$dl06)){
-IFLS5$dl06_b[i] <-  if(str_extract(as.character(IFLS5$dl06[i]), "^[\\d]+(?=:)") %in% c("2","11","72", "90")) {"1:elementary"
-                  } else if (str_extract(as.character(IFLS5$dl06[i]), "^[\\d]+(?=:)") %in% c("3", "4", "12", "73")) {"2:juniorH"
-                  } else if (str_extract(as.character(IFLS5$dl06[i]), "^[\\d]+(?=:)") %in% c("5", "6", "15", "74", "14")) {"3:seniorH"
-                  } else if (str_extract(as.character(IFLS5$dl06[i]), "^[\\d]+(?=:)") %in% c("60", "61", "62", "63", "13")) {"4:higher"
+IFLS5$dl06_b[i] <-  if(str_extract(as.character(IFLS5$dl06[i]), "^[\\d]+(?=:)") %in% c("2","11","72", "90")) {"2:elementary"
+                  } else if (str_extract(as.character(IFLS5$dl06[i]), "^[\\d]+(?=:)") %in% c("3", "4", "12", "73")) {"3:juniorH"
+                  } else if (str_extract(as.character(IFLS5$dl06[i]), "^[\\d]+(?=:)") %in% c("5", "6", "15", "74", "14")) {"4:seniorH"
+                  } else if (str_extract(as.character(IFLS5$dl06[i]), "^[\\d]+(?=:)") %in% c("60", "61", "62", "63", "13")) {"5:higher"
                   } else if (str_extract(as.character(IFLS5$dl06[i]), "^[\\d]+(?=:)") %in% c("17", "95", "98", "99")) {NA
-                  } #else if (IFLS4$dl04[i] == "3:No" & !(is.na(IFLS4$dl04[i]))) {0
-                  #}
-                    else {NA}
+                  } else if (!(is.na(IFLS5$dl04[i])) & IFLS5$dl04[i] == "3:No") {"1:no schooling"
+                  }
+else {NA}
 }
 
 IFLS4$dl06 <- IFLS4$dl06_b
@@ -81,11 +81,12 @@ IFLS4$dl06_H <- paste0(IFLS4$dl06_H)
 #check that no new NAs were introduced
 for (i in 1:length(IFLS4$dl06_H)){
 IFLS4$dl06_H_b[i] <-
-              if(IFLS4$dl06_H[i] %in% c("2","11","72")) {1
-                  } else if (IFLS4$dl06_H[i] %in% c("3", "4", "12", "73")) {2
-                  } else if (IFLS4$dl06_H[i] %in% c("5", "6", "15", "74", "14")) {3
-                  } else if (IFLS4$dl06_H[i] %in% c("60", "61", "62", "63", "13")) {4
+              if(IFLS4$dl06_H[i] %in% c("2","11","72")) {2
+                  } else if (IFLS4$dl06_H[i] %in% c("3", "4", "12", "73")) {3
+                  } else if (IFLS4$dl06_H[i] %in% c("5", "6", "15", "74", "14")) {4
+                  } else if (IFLS4$dl06_H[i] %in% c("60", "61", "62", "63", "13")) {5
                   } else if (IFLS4$dl06_H[i] %in% c("17", "95", "99")) {NA
+                  } else if (!(is.na(IFLS4$dl04_H[i])) & IFLS4$dl04_H[i] == 3) {1
                   } else {NA
                   }
 }
@@ -94,11 +95,12 @@ IFLS4$dl06_H_b[i] <-
 #IFLS5 >>> NOTE: KINDERGARTEN CATEGROIZED AS ELEMENTARY
 
 for (i in 1:length(IFLS5$dl06_H)){
-IFLS5$dl06_H_b[i] <-  if(str_extract(as.character(IFLS5$dl06_H[i]), "^[\\d]+(?=:)") %in% c("2","11","72", "90")) {"1:elementary"
-                  } else if (str_extract(as.character(IFLS5$dl06_H[i]), "^[\\d]+(?=:)") %in% c("3", "4", "12", "73")) {"2:juniorH"
-                  } else if (str_extract(as.character(IFLS5$dl06_H[i]), "^[\\d]+(?=:)") %in% c("5", "6", "15", "74", "14")) {"3:seniorH"
-                  } else if (str_extract(as.character(IFLS5$dl06_H[i]), "^[\\d]+(?=:)") %in% c("60", "61", "62", "63", "13")) {"4:higher"
+IFLS5$dl06_H_b[i] <-  if(str_extract(as.character(IFLS5$dl06_H[i]), "^[\\d]+(?=:)") %in% c("2","11","72", "90")) {"2:elementary"
+                  } else if (str_extract(as.character(IFLS5$dl06_H[i]), "^[\\d]+(?=:)") %in% c("3", "4", "12", "73")) {"3:juniorH"
+                  } else if (str_extract(as.character(IFLS5$dl06_H[i]), "^[\\d]+(?=:)") %in% c("5", "6", "15", "74", "14")) {"4:seniorH"
+                  } else if (str_extract(as.character(IFLS5$dl06_H[i]), "^[\\d]+(?=:)") %in% c("60", "61", "62", "63", "13")) {"5:higher"
                   } else if (str_extract(as.character(IFLS5$dl06_H[i]), "^[\\d]+(?=:)") %in% c("17", "95", "98", "99")) {NA
+                  } else if (!(is.na(IFLS5$dl04_H[i])) & IFLS5$dl04_H[i] == "3:No") {"1:no schooling"
                   } else {NA}
 }
 
@@ -163,10 +165,13 @@ for (i in 1:length(vars)){
   IFLS4[,vars[i]] <- convert(vars[i])
 }
 
-level_missing <- c()
+
 ```
 
 ```{r check conversion}
+
+
+level_missing <- c()
 
 #develop a list of vars in which levels don't match across survey years
 for (i in 1:length(vars)){
@@ -181,13 +186,36 @@ for (i in 1:length(vars)){
 ```
 
 
+
+```{r address missing levels}
+
+#borrow missing levels  - tk01
+
+levels(IFLS4$tk01) <- levels(IFLS4$tk01_H)
+
+
+#another form of converting levels
+
+IFLS4$tk46m_H <- ifelse(is.na(IFLS4$tk46m_H), NA, levels(IFLS5$tk46m_H)[as.numeric(as.character(IFLS4$tk46m_H))])
+
+
+
+#covert tk01 and tk46m back to characters to resolve any merge issues
+IFLS4$tk01 <- as.character(IFLS4$tk01)
+IFLS5$tk01 <- as.character(IFLS5$tk01)
+IFLS4$tk46m_H <- as.character(IFLS4$tk46m_H)
+IFLS5$tk46m_H <- as.character(IFLS5$tk46m_H)
+
+```
+
+
 ```{r combine surveys}
 issues <- c()
 
 for (i in 1:length(names(IFLS4))){
   if(class(IFLS4[,names(IFLS4)[i]]) == "factor") {
-    if (sum(levels(IFLS4[,names(IFLS4)[i]]) == levels(IFLS4[,names(IFLS5)[i]])) == length(levels(IFLS4[,names(IFLS5)[i]]))){
-    issues <- c(issue, names(IFLS4)[i])
+    if (sum(levels(IFLS4[,names(IFLS4)[i]]) == levels(IFLS4[,names(IFLS5)[i]])) != length(levels(IFLS4[,names(IFLS5)[i]]))){
+    issues <- c(issues, names(IFLS4)[i])
   }}
 }
 
@@ -195,9 +223,9 @@ for (i in 1:length(names(IFLS4))){
 
 
 
-#relabel vars
-names(IFLS4)[c(2,3,4,40,66)] <- c("pid", "hhid", "hhid_9", "hhid_9.y", "sc_code")
-names(IFLS5)[c(2,3,4,40,66)] <- c("pid", "hhid", "hhid_9", "hhid_9.y", "sc_code")
+#relabel vars >>>> YIKES! FIX THIS!
+names(IFLS4)[] <- c("pid", "hhid", "hhid_9", "hhid_9.y", "sc_code")
+names(IFLS5)[] <- c("pid", "hhid", "hhid_9", "hhid_9.y", "sc_code")
 
 #identify houses repeated across surveys
 
