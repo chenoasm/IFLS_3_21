@@ -14,6 +14,13 @@ library(dplyr)
 
 ```
 
+```{r clear environment}
+
+rm(list=ls())
+
+```
+
+
 ```{r}
 #load data
 clean <- read.csv("C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/clean_4_10.csv")
@@ -24,7 +31,7 @@ urban <- clean %>%
 
 #filter to show only husbands from urban HH that lost jobs
 urban_jl <- clean %>%
-        filter (sc05 == "1:Urban" & job_loss_H == 1)
+        filter (sc05 == "1:Urban" & job_loss_H == "1:Yes")
 
 #filter to urban HH w/ employed husband
 emp_wives <- urban %>%
@@ -39,33 +46,147 @@ emp_husbands <- urban %>%
 ```
 
 ```{r}
+#function to produce table summaries
+
+sum_tab <- function(var){
+  
+  prop.table(table(var))
+  
+}
+
+
+```
+
+```{r}
 
 #wives' ages
 summary(urban$age)
 
+#ages of employed wives
+summary(emp_wives$age)
+
 #husbands' ages
 summary(urban$age_H)
 
+#ages of employed  husbands
+summary(emp_wives$age_H)
+
 #wives'educational attainment
 summary(urban$dl06)
+sum_tab(urban$dl06)
+
+#educational attainment of employed wives
+summary(emp_wives$dl06)
+sum_tab(emp_wives$dl06)
 
 #husbands' educational attainment
 summary(urban$dl06_H)
+sum_tab(urban$dl06_H)
+
+#educational attainment of employed husbands
+summary(emp_husbands$dl06_H)
+sum_tab(emp_husbands$dl06_H)
 
 #wives employment status
 summary(urban$employed)
+sum_tab(urban$employed)
 
 #husbands' employment status
 summary(urban$employed_H)
+sum_tab(urban$employed_H)
+
+#sector of employment, working wives
+table(emp_wives$tk24a)
+sum_tab(emp_wives$tk24a)
+
+#sector of employment, working husbands
+table(emp_husbands$tk24a)
+sum_tab(emp_husbands$tk24a)
+
+#wage wives
+summary(emp_wives$tk25a1)
+
+#wage husbands
+summary(emp_husbands$tk25a1_H)
 
 #number of dependents
 summary(urban$dependents)
+
+#working dependents
 summary(urban$working_dependents)
 
 #number of other HH members
 summary(urban$other_HHM)
+
+#other working HH members
 summary(urban$other_working)
 
+#region >> need to locate codes, remove region 15?
+table(urban$sc_code)
+
+#INFO on HUSBANDS WHO LOSE JOB
+
+#husbands' job losses
+table(urban$job_loss)
+sum_tab(urban$job_loss)
+
+#age of husbands who lost jobs
+summary(urban_jl$age_H)
+
+#current employment status of husbands who lost jobs
+summary(urban_jl$employed_H)
+sum_tab(urban_jl$employed_H)
+
+#current sector of employment, husbands who lost jobs
+summary(urban_jl$tk24a_H)
+sum_tab(urban_jl$tk24a_H)
+
+#for husbands who lost jobs before second period and were employed in 1st period, job type in first period
+
+#husbands who lost jobs before IFLS5
+jl_IFLS5 <- urban_jl %>%
+              filter(year == 2014)
+
+#husbands who lost jobs before IFLS4
+jl_IFLS4 <- urban_jl %>%
+              filter(year == 2007)
+
+
+#husbands employed in IFLS4 who lost jobs in IFLS5 (IFLS4 data)
+emp_H_IFLS4_jl <- emp_husbands %>%
+                filter(year == 2007, pidlink %in% jl_IFLS5$pidlink)
+
+#husbands employed in IFLS4 who lost jobs in IFLS5 (IFLS4 data)
+jl_IFLS5_2 <- jl_IFLS5 %>%
+              filter(pidlink %in% emp_H_IFLS4_jl$pidlink)  
+
+
+#industry that husbands worked in prior to job loss >> disproportionately private sector
+summary(emp_H_IFLS4_jl$tk24a_H)
+sum_tab(emp_H_IFLS4_jl$tk24a_H)
+
+#industry that husbands worked in after job loss >> slight decrease in private sector
+summary(jl_IFLS5_2$tk24a_H)
+sum_tab(jl_IFLS5_2$tk24a_H)
+
+#husbands who lost jobs in  both periods?  >> 78
+nrow(jl_IFLS5 %>%
+       filter(pidlink %in% jl_IFLS4$pidlink))
+
+#average number of job losses  >> 39 is unreasonable, will need to revisit this
+summary(urban_jl$tk46c_H)
+
+#private sector husbands 
+emp_H_private <- emp_husbands %>%
+                  filter(tk24a_H == "5:Private worker")
+
+#self employed husbands
+emp_H_public <- emp_husbands %>%
+                  filter(tk24a_H == "1:Self-employed")
+
+#emp
+wage_avail <- emp_husbands %>%
+              filter(!(is.na(tk25a1_H)), tk24a_H != 0)
 
 
 ```

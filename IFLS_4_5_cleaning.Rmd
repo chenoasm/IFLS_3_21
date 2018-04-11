@@ -9,6 +9,12 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r}
+
+library(lubridate)
+
+```
+
 ```{r clear environment}
 
 rm(list=ls())
@@ -28,6 +34,22 @@ for (i in 1:length(vars)){
 }
 
 ```
+
+```{r}
+
+#remove salary top-coding
+
+IFLS_4_5$tk25a1 <- ifelse(IFLS_4_5$tk25a1 == 999999997, NA, IFLS_4_5$tk25a1)
+IFLS_4_5$tk25a1_H <- ifelse(IFLS_4_5$tk25a1_H == 999999997, NA, IFLS_4_5$tk25a1_H)
+
+
+#remove num job losses top coding >> remove 39
+IFLS_4_5$tk46c <- ifelse(IFLS_4_5$tk46c == 99 | IFLS_4_5$tk46c == 98, NA, IFLS_4_5$tk46c)
+IFLS_4_5$tk46c_H <- ifelse(IFLS_4_5$tk46c_H == 99  | IFLS_4_5$tk46c_H == 98, NA, IFLS_4_5$tk46c_H)
+
+```
+
+
 
 ```{r emp vars W}
 
@@ -96,8 +118,11 @@ IFLS_4_5$job_loss <- ifelse(IFLS_4_5$ever_emp == "3:No" | IFLS_4_5$tk46a == "3:N
 
 IFLS_4_5$job_loss_H <- ifelse(IFLS_4_5$ever_emp_H == "3:No" | IFLS_4_5$tk46a_H == "3:No", 2, IFLS_4_5$tk46b_H)
 
-#multiple job losses
+IFLS_4_5$job_loss <- as.factor(IFLS_4_5$job_loss)
+IFLS_4_5$job_loss_H <- as.factor(IFLS_4_5$job_loss_H)
 
+levels(IFLS_4_5$job_loss) <- levels(IFLS_4_5$ever_emp)
+levels(IFLS_4_5$job_loss_H) <- levels(IFLS_4_5$ever_emp)
 
 
 ```
@@ -115,6 +140,16 @@ length(IFLS_4_5[which((is.na(IFLS_4_5$tk24a)) & as.numeric(IFLS_4_5$employed) ==
 length(IFLS_4_5[which((is.na(IFLS_4_5$tk24a_H)) & as.numeric(IFLS_4_5$employed_H) == 1),1])
 
 
+
+
+```
+
+```{r}
+
+#compute time between job loss and interview date
+
+#construct interview date
+IFLS_4_5$interview_d <- md(paste0())
 
 
 ```

@@ -25,10 +25,10 @@ library(dplyr)
 #load B3A_COV IFLS4
 B3A_COV <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/b3a_cov.dta")
 
-#add year variable and filter to selected vars
+#add wave variable and filter to selected vars
 B3A_COV <- B3A_COV %>%
-                select(pid07, hhid07, hhid07_9, pidlink, sex, respndnt, marstat, panel, age) %>%
-                mutate(year = 2007)
+                select(pid07, hhid07, hhid07_9, pidlink, sex, respndnt, marstat, panel, age, ivwmth1, ivwyr1) %>%
+                mutate(wave = 4, ivwyr1 = ivwyr1 + 2000)
 ```
 
 ```{r TK section}
@@ -190,6 +190,8 @@ BK_SC <- BK_SC %>%
 #add hh geo data to wives data
 wives <- wives %>%
             left_join(BK_SC, by = "hhid07")
+
+
 
 ```
 

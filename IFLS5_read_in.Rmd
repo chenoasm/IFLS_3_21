@@ -25,10 +25,10 @@ library(dplyr)
 #load B3A_COV IFLS5
 B3A_COV <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS5/b3a_cov.dta")
 
-#add year variable and filter to selected vars
+#add wave variable and filter to selected vars
 B3A_COV <- B3A_COV %>%
                 select(pid14, hhid14, hhid14_9, pidlink, sex, rspndnt, marstat, panel, age) %>%
-                mutate(year = 2014)
+                mutate(wave = 5)
 ```
 
 ```{r TK section}
@@ -64,6 +64,16 @@ table(TK_merge$tk05)
 
 #LOOK AT THIS
 TK4_missing <- TK_merge[!(TK_merge$pidlink %in% B3A_TK4$pidlink),] 
+
+```
+
+```{r interview time}
+
+#add interview time
+B3A_TIME <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS5/b3a_time.dta")
+
+B3A_TIME <- B3A_TIME %>%
+                select(ivwmth, ivwyr, hhid14, pid14)
 
 ```
 
@@ -125,6 +135,9 @@ merged <- full_join(merged, B3A_BR1, by = c("hhid14", "pid14"))
 
 # merge DL1 > all matched
 merged <- full_join(merged, B3A_DL1, by = c("hhid14", "pid14"))
+
+#merge B3A_TIME
+merged <- full_join(merged, B3A_TIME, by = c("hhid14", "pid14"))
 
 #merge DL2 >> issue with matches
 #merged <- full_join(merged, B3A_DL2, by = c("hhid14", "pid14"))

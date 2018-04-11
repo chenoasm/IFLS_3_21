@@ -214,7 +214,9 @@ issues <- c()
 
 for (i in 1:length(names(IFLS4))){
   if(class(IFLS4[,names(IFLS4)[i]]) == "factor") {
-    if (sum(levels(IFLS4[,names(IFLS4)[i]]) == levels(IFLS4[,names(IFLS5)[i]])) != length(levels(IFLS4[,names(IFLS5)[i]]))){
+    if(length(levels(IFLS4[,names(IFLS4)[i]])) != length(levels(IFLS5[,names(IFLS5)[i]]))){
+      issues <- c(issues, names(IFLS4)[i])}
+    else if (sum(levels(IFLS4[,names(IFLS4)[i]]) == levels(IFLS5[,names(IFLS5)[i]])) != length(levels(IFLS4[,names(IFLS4)[i]]))){
     issues <- c(issues, names(IFLS4)[i])
   }}
 }
@@ -223,8 +225,8 @@ for (i in 1:length(names(IFLS4))){
 name_edits_4 <- names(IFLS4)[which(!(names(IFLS4) %in% names(IFLS5)))]
 name_edits_5 <- names(IFLS5)[which(!(names(IFLS5) %in% names(IFLS4)))]
 
-#BE VERY CAREFUL HERE! CHECK THIS
-names(IFLS4)[which(!(names(IFLS4) %in% names(IFLS5)))] <- c("pid", "hhid", "hhid_9", "hhid_9", "sc_code")
+#BE VERY CAREFUL HERE! CHECK THIS!!! can produce errors if vars are added
+names(IFLS4)[which(!(names(IFLS4) %in% names(IFLS5)))] <- c("pid", "hhid", "hhid_9", "ivwmth", "ivwyr", "hhid_9", "sc_code")
 names(IFLS5)[which(!(names(IFLS5) %in% names(IFLS4)))] <- c("pid", "hhid", "hhid_9", "hhid_9", "sc_code")
 
 #identify houses repeated across surveys
