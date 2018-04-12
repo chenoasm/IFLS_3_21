@@ -17,6 +17,7 @@ rm(list=ls())
 
 ```{r load libraries}
 library(stringr)
+library(dplyr)
 ```
 
 ```{r load files}
@@ -186,7 +187,6 @@ for (i in 1:length(vars)){
 ```
 
 
-
 ```{r address missing levels}
 
 #borrow missing levels  - tk01
@@ -200,7 +200,7 @@ IFLS4$tk46m_H <- ifelse(is.na(IFLS4$tk46m_H), NA, levels(IFLS5$tk46m_H)[as.numer
 
 
 
-#covert tk01 and tk46m back to characters to resolve any merge issues
+#covert tk01 and tk46m back to characters to resolve any merge issues (different number of levels)
 IFLS4$tk01 <- as.character(IFLS4$tk01)
 IFLS5$tk01 <- as.character(IFLS5$tk01)
 IFLS4$tk46m_H <- as.character(IFLS4$tk46m_H)
@@ -212,14 +212,30 @@ IFLS5$tk46m_H <- as.character(IFLS5$tk46m_H)
 ```{r combine surveys}
 issues <- c()
 
+level_mismatch <- c()
+
+#factors with issues
 for (i in 1:length(names(IFLS4))){
   if(class(IFLS4[,names(IFLS4)[i]]) == "factor") {
-    if(length(levels(IFLS4[,names(IFLS4)[i]])) != length(levels(IFLS5[,names(IFLS5)[i]]))){
-      issues <- c(issues, names(IFLS4)[i])}
-    else if (sum(levels(IFLS4[,names(IFLS4)[i]]) == levels(IFLS5[,names(IFLS5)[i]])) != length(levels(IFLS4[,names(IFLS4)[i]]))){
+    if(length(levels(IFLS4[,names(IFLS4)[i]])) != length(levels(IFLS5[,names(IFLS4)[i]]))){
+      level_mismatch <- c(level_mismatch, names(IFLS4)[i])}
+    else if (sum(levels(IFLS4[,names(IFLS4)[i]]) == levels(IFLS5[,names(IFLS4)[i]])) != length(levels(IFLS4[,names(IFLS4)[i]]))){
     issues <- c(issues, names(IFLS4)[i])
   }}
 }
+
+#all factors
+factors <- c()
+
+for (i in 1:length(names(IFLS4))){
+
+  if (class(IFLS4[,names(IFLS4)[i]])== "factor"){
+    
+  factors <- c(factors, names(IFLS4)[i])
+    
+  }
+}
+
 
 #names in need of edits
 name_edits_4 <- names(IFLS4)[which(!(names(IFLS4) %in% names(IFLS5)))]

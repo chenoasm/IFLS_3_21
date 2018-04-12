@@ -221,7 +221,11 @@ wives$tk04_H <- ifelse(wives$tk04_H == 3, NA, wives$tk04_H)
 wives$tk01 <- ifelse(wives$tk01 == 95 | wives$tk01 == 99, NA, wives$tk01)
 wives$tk01_H <- ifelse(wives$tk01_H == 95 | wives$tk01_H == 99, NA, wives$tk01_H)
 
+#recode tk46dm_H
+wives$tk46dm_H <- ifelse(wives$tk46dm_H %in% c(98, 99), NA, wives$tk46dm_H)
 
+#recode tk46dy_H
+wives$tk46dy_H <- ifelse(wives$tk46dy_H %in% c(9998, 9999), NA, wives$tk46dy_H)
 
 ```
 

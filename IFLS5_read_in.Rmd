@@ -228,6 +228,9 @@ wives$tk24a <- ifelse(wives$tk24a == "8:Don't Know", NA, as.character(wives$tk24
 #recode tk46m_H
 wives$tk46m_H <- ifelse(wives$tk46m_H == "95:Other", NA, as.character(wives$tk46m_H))
 
+#recode tk46dy_H
+wives$tk46dy_H <- ifelse(wives$tk46dy_H %in%c(9998, 9999), NA, wives$tk46dy_H)
+
 #recode dl04 and dl04_H
 wives$dl04 <- ifelse(wives$dl04 == "8:MISSING" | wives$dl04 == "9:Don't Know", NA, as.character(wives$dl04))
 wives$dl04_H <- ifelse(wives$dl04_H == "8:MISSING" | wives$dl04_H == "9:Don't Know", NA, as.character(wives$dl04_H))
@@ -235,6 +238,8 @@ wives$dl04_H <- ifelse(wives$dl04_H == "8:MISSING" | wives$dl04_H == "9:Don't Kn
 #recode tk24a
 wives$tk24a <- ifelse(wives$tk24a == "9:Missing", NA, as.character(wives$tk24a))
 
+#recode tk46dm_H
+wives$tk46dm_H <- ifelse(wives$tk46dm_H == "98:Don't Know", NA, wives$tk46dm_H)
 
 #convert back to factors
 factor_vars <- c("tk01", "tk01_H", "tk01a", "tk03", "tk24a", "tk46m_H", "dl04", "dl04_H", "tk24a")

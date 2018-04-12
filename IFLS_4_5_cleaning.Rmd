@@ -148,8 +148,18 @@ length(IFLS_4_5[which((is.na(IFLS_4_5$tk24a_H)) & as.numeric(IFLS_4_5$employed_H
 
 #compute time between job loss and interview date
 
-#construct interview date
-IFLS_4_5$interview_d <- md(paste0())
+#construct interview date and job loss date
+IFLS_4_5 <- IFLS_4_5 %>%
+            mutate(interview_d = mdy(paste0(ivwmth, "/1/", ivwyr)), 
+                   jl_d_H = ifelse((is.na(tk46dm_H)), NA, (paste0(tk46dm_H, "/1/", tk46dy_H))))
+
+IFLS_4_5$jl_d_H <- mdy(IFLS_4_5$jl_d_H)
+
+#variable for time between survey and job loss
+IFLS_4_5$jl_year <- ceiling(ifelse(is.na(IFLS_4_5$jl_d_H), 0, interval(IFLS_4_5$jl_d_H, IFLS_4_5$interview_d)/dyears()))
+
+#recode for job losses beyond 5 years, likely a recording error, address in data section
+IFLS_4_5$jl_year <- ifelse(IFLS_4_5$jl_year %in% c(6,7,8,10, 11, 17), 0, IFLS_4_5$jl_year)
 
 
 ```
