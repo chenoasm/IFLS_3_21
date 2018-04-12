@@ -1,0 +1,25 @@
+---
+title: "Regressions Part 1"
+author: "Chenoa Schatzki-McClain"
+date: "April 12, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+```
+
+```{r clear environment}
+
+rm(list=ls())
+
+```
+
+```{r}
+#load data
+clean <- read.csv("C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/clean_4_10.csv")
+```

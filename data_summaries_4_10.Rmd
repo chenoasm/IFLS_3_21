@@ -42,6 +42,14 @@ emp_husbands <- urban %>%
         filter(employed_H == "1:Employed")
 
 
+#filter to working wives w/ wage data
+
+wives_wage <- emp_wives %>%
+              filter(!(is.na(tk25a1)))
+
+#filter to working wives w/o wage data
+wives_no_wage <- emp_wives %>%
+              filter((is.na(tk25a2)))
 
 ```
 

@@ -43,7 +43,7 @@ B3A_TK1 <- B3A_TK1 %>%
 B3A_TK2 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/b3a_tk2.dta")
 #subset
 B3A_TK2 <- B3A_TK2 %>%
-                select(pid07, hhid07, hhid07_9, pidlink, tk22a, tk23a, tk24a, tk25a1x, tk25a1, tk25a2)
+                select(pid07, hhid07, hhid07_9, pidlink, tk22a, tk23a, tk24a, tk24a5, tk25a1x, tk25a1, tk25a2)
 
 #load B3A_TK4 IFLS4
 B3A_TK4 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS4/b3a_tk4.dta")
@@ -149,7 +149,7 @@ wives <- merged %>%
 #subset data on husbands
 husbands <- merged %>%
               filter(sex == 1, marstat == 2) %>%
-              select(hhid07, pid07, age, tk24a, tk25a1x, tk25a1, tk25a2, tk46a, tk46b, tk46c, tk46dm, tk46dy, tk46m, tk01, tk01a, tk03, tk04, tk05, tk06a, tk07, dl04, dl06, dl06x, ar14)
+              select(hhid07, pid07, age, tk24a, tk24a5, tk25a1x, tk25a1, tk25a2, tk46a, tk46b, tk46c, tk46dm, tk46dy, tk46m, tk01, tk01a, tk03, tk04, tk05, tk06a, tk07, dl04, dl06, dl06x, ar14)
 
 #rename husband vars
 names(husbands)[2:length(husbands)] <- paste0(names(husbands)[2:length(husbands)], "_H") 
@@ -158,10 +158,22 @@ names(husbands)[2:length(husbands)] <- paste0(names(husbands)[2:length(husbands)
 
 ```{r add husband data to wives}
 
+#remove wives whose husbands live in separate households
+wives <- wives %>%
+            filter(ar14 != 51)
+
+
+
 #merge husband data >> match HH, match husband's PID w/ AR14 and vice versa
+#will eliminate observations where husband is not located ******************
 
-wives <- left_join(wives, husbands, by = c("hhid07"= "hhid07", "ar14" = "pid07_H", "pid07" = "ar14_H"))
+wives <- inner_join(wives, husbands, by = c("hhid07"= "hhid07", "ar14" = "pid07_H", "pid07" = "ar14_H"))
 
+#no wives linked to same husband
+wives_repeated_H <- wives %>%
+                    group_by(hhid07, ar14) %>%
+                    summarise(repeats = n()) %>%
+                    filter(repeats >1)
 
 ```
 
@@ -170,6 +182,7 @@ wives <- left_join(wives, husbands, by = c("hhid07"= "hhid07", "ar14" = "pid07_H
 #dependents, working dependents
 
 household_mother_summary <- BK_AR1 %>%
+                        filter(!(ar11 %in% c(51, 52))) %>%
                         group_by(hhid07) %>%
                         mutate(all_members = n(), all_working = sum(ar15a == 1)) %>%
                         group_by(hhid07, ar11) %>%
