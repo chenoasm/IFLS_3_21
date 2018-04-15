@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 
 ```{r}
 library(dplyr)
-
+library(ggplot)
 ```
 
 ```{r clear environment}
@@ -49,11 +49,27 @@ wives_wage <- emp_wives %>%
 
 #filter to working wives w/o wage data
 wives_no_wage <- emp_wives %>%
-              filter((is.na(tk25a2)))
+              filter((is.na(tk25a1)))
+
+#wives with recorded profits
+wives_profits <- emp_wives %>%
+              filter(!(is.na(tk26a1)))
+
+
+#wives no profits, no wages
+wives_no_wp <- emp_wives %>%
+              filter(is.na(tk26a1) & is.na(tk25a1))
 
 ```
 
 ```{r}
+
+#none of the wives w/ recorded wages have recorded profits
+sum(is.na(wives_wage$tk26a1))
+
+
+
+
 #function to produce table summaries
 
 sum_tab <- function(var){

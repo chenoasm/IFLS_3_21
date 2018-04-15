@@ -43,7 +43,7 @@ B3A_TK1 <- B3A_TK1 %>%
 B3A_TK2 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS5/b3a_tk2.dta")
 #subset
 B3A_TK2 <- B3A_TK2 %>%
-                select(pid14, hhid14, hhid14_9, pidlink, tk22a, tk23a, tk24a, tk25a1x, tk24a5, tk25a1, tk25a2)
+                select(pid14, hhid14, hhid14_9, pidlink, tk22a, tk23a, tk24a, tk25a1x, tk24a5, tk25a1, tk25a2, tk26a1, tk26a3)
 
 #load B3A_TK4 IFLS5
 B3A_TK4 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS5/b3a_tk4.dta")
@@ -171,11 +171,10 @@ wives <- merged %>%
 #subset data on husbands
 husbands <- merged %>%
               filter(as.numeric(sex) == 1, as.numeric(marstat) == 2) %>%
-              select(hhid14, pid14, age, tk24a, tk24a5, tk25a1x, tk25a1, tk25a2, tk46a, tk46b, tk46c, tk46dm, tk46dy, tk46m, tk01, tk01a, tk03, tk04, tk05, tk06a, tk07, dl04, dl06, dl06x, ar14)
+              select(hhid14, pid14, age, tk24a, tk24a5, tk25a1x, tk25a1, tk25a2, tk26a1, tk26a3, tk46a, tk46b, tk46c, tk46dm, tk46dy, tk46m, tk01, tk01a, tk03, tk04, tk05, tk06a, tk07, dl04, dl06, dl06x, ar14)
 
 #rename husband vars
 names(husbands)[2:length(husbands)] <- paste0(names(husbands)[2:length(husbands)], "_H") 
-
 
 ```
 
@@ -260,6 +259,12 @@ wives$tk24a5_H <- ifelse(wives$tk24a5_H %in% c("8:Don't Know", "9:Missing"), NA,
 
 #recode tk46dm_H
 wives$tk46dm_H <- ifelse(wives$tk46dm_H == "98:Don't Know", NA, wives$tk46dm_H)
+
+
+#no dependents coded as NA due to wives not being matches, change to 0
+wives$dependents <- ifelse(is.na(wives$dependents), 0, wives$dependents)
+wives$working_dependents <- ifelse(is.na(wives$working_dependents), 0, wives$working_dependents)
+
 
 #convert back to factors
 factor_vars <- c("tk01", "tk01_H", "tk01a", "tk03", "tk24a", "tk46m_H", "dl04", "dl04_H", "tk24a")

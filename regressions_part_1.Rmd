@@ -22,4 +22,8 @@ rm(list=ls())
 ```{r}
 #load data
 clean <- read.csv("C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/clean_4_10.csv")
+
+#subset to variables of interest
+r1 <- clean %>%
+            select(employed, employed_H, jl_year, age, age_H, dlo6, dlo6_H)
 ```
