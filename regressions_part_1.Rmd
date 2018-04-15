@@ -25,5 +25,5 @@ clean <- read.csv("C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/clean_4_10.cs
 
 #subset to variables of interest
 r1 <- clean %>%
-            select(employed, employed_H, jl_year, age, age_H, dlo6, dlo6_H)
+            select(employed, employed_H, jl_year, age, age_H, dl06, dl06_H, dependents, working_dependents, other_HHM, other_working)
 ```

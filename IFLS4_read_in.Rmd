@@ -194,7 +194,7 @@ household_member_summary <- BK_AR1 %>%
 #add dependents and working dependents to wives' data
 wives <- wives %>%
             left_join(household_mother_summary, by = c("hhid07" = "hhid07", "pid07" = "ar11")) %>%
-            mutate (dependents = ifelse(is.na(dependents), 0, dependents))
+            mutate (dependents = ifelse(is.na(dependents), 0, dependents), working_dependents = ifelse(is.na(working_dependents), 0, working_dependents))
 
 #add HHM data to wives data
 wives <- wives %>%
@@ -251,9 +251,6 @@ wives$tk46dm_H <- ifelse(wives$tk46dm_H %in% c(98, 99), NA, wives$tk46dm_H)
 #recode tk46dy_H
 wives$tk46dy_H <- ifelse(wives$tk46dy_H %in% c(9998, 9999), NA, wives$tk46dy_H)
 
-#no dependents coded as NA due to wives not being matches, change to 0
-wives$dependents <- ifelse(is.na(wives$dependents), 0, wives$dependents)
-wives$working_dependents <- ifelse(is.na(wives$working_dependents), 0, wives$working_dependents)
 
 ```
 

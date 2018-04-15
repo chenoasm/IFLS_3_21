@@ -204,15 +204,33 @@ wives_repeated_H <- wives %>%
 
 household_mother_summary <- BK_AR1 %>%
                         filter(!(ar11 %in% c(51, 52, 98))) %>%
-                        group_by(hhid14) %>%
-                        mutate(all_members = n(), all_working = sum(as.numeric(ar15a) == 1)) %>%
                         group_by(hhid14, ar11) %>%
-                        summarize(dependents = sum(ar09 < 15), working_dependents = sum(ar09 < 15 & as.numeric(ar15a) == 1), other_HHM =  mean(all_members) - sum(ar09 <15), other_working = mean(all_working) - sum(ar09 < 15 & as.numeric(ar15a) == 1))
+                        summarize(dependents = sum(ar09 < 15), working_dependents = sum(ar09 < 15 & as.numeric(ar15a) == 1))
+
+
+household_member_summary <- BK_AR1 %>%
+                            group_by(hhid14) %>%
+                            mutate(working = ifelse(is.na(ar15a), 0, ifelse(as.numeric(ar15a) == 1, 1, 0))) %>%
+                            summarize(HHM =  n() , working_HHM =  sum(working == 1))
 
 
 #add dependents and working dependents to wives' data
 wives <- wives %>%
-            left_join(household_mother_summary, by = c("hhid14" = "hhid14", "pid14" = "ar11"))
+            left_join(household_mother_summary, by = c("hhid14" = "hhid14", "pid14" = "ar11")) %>%
+            mutate (dependents = ifelse(is.na(dependents), 0, dependents), working_dependents = ifelse(is.na(working_dependents), 0, working_dependents))
+
+#add HHM data to wives data
+wives <- wives %>%
+            left_join(household_member_summary, by = c("hhid14" = "hhid14"))
+
+#add other HHM and other working
+wives <- wives %>%
+          mutate(other_HHM = HHM - dependents, other_working = working_HHM - working_dependents)
+
+
+
+
+
 
 #province and urban/rural
 
@@ -259,12 +277,6 @@ wives$tk24a5_H <- ifelse(wives$tk24a5_H %in% c("8:Don't Know", "9:Missing"), NA,
 
 #recode tk46dm_H
 wives$tk46dm_H <- ifelse(wives$tk46dm_H == "98:Don't Know", NA, wives$tk46dm_H)
-
-
-#no dependents coded as NA due to wives not being matches, change to 0
-wives$dependents <- ifelse(is.na(wives$dependents), 0, wives$dependents)
-wives$working_dependents <- ifelse(is.na(wives$working_dependents), 0, wives$working_dependents)
-
 
 #convert back to factors
 factor_vars <- c("tk01", "tk01_H", "tk01a", "tk03", "tk24a", "tk46m_H", "dl04", "dl04_H", "tk24a")
