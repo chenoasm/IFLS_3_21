@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 library(dplyr)
+library(sampleSelection)
 ```
 
 ```{r clear environment}
@@ -23,7 +24,99 @@ rm(list=ls())
 #load data
 clean <- read.csv("C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/clean_4_10.csv")
 
+clean$employed <- ifelse(as.numeric(clean$employed) == 1, 1, 0)
+clean$jl <- ifelse(clean$jl_year == "0", "0", "1")
+clean$age_sq <- (clean$age)^2
+clean$age_sq_H <- (clean$age_H)^2
+clean$jl_year <- as.factor(clean$jl_year)
+
 #subset to variables of interest
 r1 <- clean %>%
-            select(employed, employed_H, jl_year, age, age_H, dl06, dl06_H, dependents, working_dependents, other_HHM, other_working)
+            select(employed, employed_H, jl, age, age_H, age_sq, age_sq_H, dl06, dl06_H, dependents, working_dependents, other_HHM, other_working, sc_code, wave)
+```
+
+```{r}
+
+#first regression
+
+glm1 <- glm(employed ~ . , family = binomial, data = r1)
+summary(glm1)
+
+glm2 <- glm(employed ~ . - age_H - age_sq_H, family = binomial, data = r1)
+summary(glm2)
+
+```
+
+```{r}
+#subset to variables of interest
+r2 <- clean %>%
+            select(employed, employed_H, jl_year, age, age_H, age_sq, age_sq_H, dl06, dl06_H, dependents, working_dependents, other_HHM, other_working, sc_code, wave)
+
+glm2a <- glm(employed ~ . , family = binomial, data = r2)
+summary(glm2a)
+
+glm2b <- glm(employed ~ . - age_H - age_sq_H, family = binomial, data = r2)
+summary(glm2b)
+
+```
+
+```{r}
+#second regression
+
+#limit job loss to firing/displacement
+clean$jl_2 <- ifelse(clean$jl == "1" & as.numeric(clean$tk46m_H) %in% c(1, 2, 5), 1, 0)
+
+#subset to variables of interest
+r3 <- clean %>%
+            select(employed, employed_H, jl_2, age, age_H, age_sq, age_sq_H, dl06, dl06_H, dependents, working_dependents, other_HHM, other_working, sc_code, wave)
+
+glm3a <- glm(employed ~ . , family = binomial, data = r3)
+summary(glm3a)
+
+glm3b <- glm(employed ~ . - age_H - age_sq_H, family = binomial, data = r3)
+summary(glm3b)
+
+glm3c <- glm(employed ~ . - age_H - age_sq_H - sc_code, family = binomial, data = r3)
+summary(glm3c)
+
+glm3d <- glm(employed ~ . - age_H - age_sq_H - sc_code - wave, family = binomial, data = r3)
+summary(glm3d)
+
+```
+
+```{r}
+
+#limit jl_year based on firings
+clean$jl_year_fired <- ifelse(clean$jl_year != "0" & !(as.numeric(clean$tk46m_H) %in% c(1, 2, 5)), 0, as.numeric(clean$jl_year)-1)
+clean$jl_year_fired <- as.factor(clean$jl_year_fired)
+
+r4 <- clean %>%
+            select(employed, employed_H, jl_year_fired, age, age_H, age_sq, age_sq_H, dl06, dl06_H, dependents, working_dependents, other_HHM, other_working, sc_code, wave)
+
+glm4a <- glm(employed ~ . , family = binomial, data = r4)
+summary(glm4a)
+
+glm4b <- glm(employed ~ . - age_H - age_sq_H, family = binomial, data = r4)
+summary(glm4b)
+
+```
+
+```{r}
+
+#eliminate unpaid family workers from employed
+
+clean$employed2 <- ifelse(clean$employed == 1 & as.numeric(clean$tk24a) == 6, 0, clean$employed)
+clean$employed2_H <- ifelse(as.numeric(clean$employed_H) == 1 & as.numeric(clean$tk24a_H) == 6, 0, as.numeric(clean$employed_H))
+
+r5 <- clean %>%
+            select(employed2, employed2_H, jl_2, age, age_H, age_sq, age_sq_H, dl06, dl06_H, dependents, working_dependents, other_HHM, other_working, sc_code, wave)
+
+glm5a <- glm(employed2 ~ . , family = binomial, data = r5)
+summary(glm5a)
+```
+
+```{r}
+
+#include industry variable
+
 ```

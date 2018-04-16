@@ -161,6 +161,8 @@ IFLS_4_5$jl_year <- ceiling(ifelse(is.na(IFLS_4_5$jl_d_H), 0, interval(IFLS_4_5$
 #recode for job losses beyond 5 years, likely a recording error, address in data section
 IFLS_4_5$jl_year <- ifelse(IFLS_4_5$jl_year %in% c(6,7,8,10, 11, 17), 0, IFLS_4_5$jl_year)
 
+#convert to factor
+IFLS_4_5$jl_year <- as.factor(IFLS_4_5$jl_year)
 
 ```
 
@@ -175,7 +177,11 @@ for (i in 1:length(vars)){
   IFLS_4_5[, vars[i]] <- NULL 
 }
 
+#wave should be factor
+IFLS_4_5$year <- as.factor(IFLS_4_5$wave)
 
+#region should be factor
+IFLS_4_5$sc_code <- as.factor(IFLS_4_5$sc_code)
 ```
 
 ```{r}
