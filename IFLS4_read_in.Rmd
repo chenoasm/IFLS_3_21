@@ -149,7 +149,7 @@ wives <- merged %>%
 #subset data on husbands
 husbands <- merged %>%
               filter(sex == 1, marstat == 2) %>%
-              select(hhid07, pid07, age, tk24a, tk24a5, tk25a1x, tk25a1, tk25a2, tk26a1, tk26a3, tk46a, tk46b, tk46c, tk46dm, tk46dy, tk46m, tk01, tk01a, tk03, tk04, tk05, tk06a, tk07, dl04, dl06, dl06x, ar14)
+              select(hhid07, pid07, age, tk22a, tk24a, tk24a5, tk25a1x, tk25a1, tk25a2, tk26a1, tk26a3, tk46a, tk46b, tk46c, tk46dm, tk46dy, tk46m, tk01, tk01a, tk03, tk04, tk05, tk06a, tk07, dl04, dl06, dl06x, ar14)
 
 #rename husband vars
 names(husbands)[2:length(husbands)] <- paste0(names(husbands)[2:length(husbands)], "_H") 

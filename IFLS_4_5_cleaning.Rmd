@@ -182,6 +182,11 @@ IFLS_4_5$year <- as.factor(IFLS_4_5$wave)
 
 #region should be factor
 IFLS_4_5$sc_code <- as.factor(IFLS_4_5$sc_code)
+
+#remove hours top coding
+IFLS_4_5$tk22a <- ifelse(IFLS_4_5$tk22a > 120, NA, IFLS_4_5$tk22a)
+IFLS_4_5$tk22a_H <- ifelse(IFLS_4_5$tk22a_H > 120, NA, IFLS_4_5$tk22a_H)
+
 ```
 
 ```{r}

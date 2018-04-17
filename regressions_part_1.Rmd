@@ -12,6 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(dplyr)
 library(sampleSelection)
+library(ggplot2)
+library(plm)
 ```
 
 ```{r clear environment}
@@ -29,6 +31,9 @@ clean$jl <- ifelse(clean$jl_year == "0", "0", "1")
 clean$age_sq <- (clean$age)^2
 clean$age_sq_H <- (clean$age_H)^2
 clean$jl_year <- as.factor(clean$jl_year)
+clean$sc_code <- as.factor(clean$sc_code)
+clean$wave <- as.factor(clean$wave)
+
 
 #subset to variables of interest
 r1 <- clean %>%
@@ -117,6 +122,113 @@ summary(glm5a)
 
 ```{r}
 
-#include industry variable
+#include recoded industry variable
+
+ggplot(clean, aes(x= tk24a, y = tk26a1)) +
+      geom_boxplot()+
+      ylim(0, 50000000)
+
+ggplot(clean, aes(x= tk24a, y = tk25a1)) +
+      geom_boxplot()+
+      ylim(0, 50000000)
+
+#new job cat
+cats <- c("self-employed", "self-employed", "informal business", "government", "private", "unemployed", "casual", "casual")
+
+clean$job_cat_H <- c()
+
+for(i in 1:nrow(clean)){
+    if(clean$employed_H[i] == 0){
+          clean$job_cat_H[i] <- "unemployed"
+    }
+    else {
+          clean$job_cat_H[i] <- cats[as.numeric(clean$tk24a_H[i])]
+    }
+}
+
+clean$job_cat <- c()
+
+for(i in 1:nrow(clean)){
+    if(clean$employed[i] == 0){
+          clean$job_cat[i] <- "unemployed"
+    }
+    else {
+          clean$job_cat[i] <- cats[as.numeric(clean$tk24a[i])]
+    }
+}
+
+r6 <- clean %>%
+            select(employed2, job_cat_H, jl_2, age, age_H, age_sq, age_sq_H, dl06, dl06_H, dependents, working_dependents, other_HHM, other_working, sc_code, wave)
+                
+glm6a <- glm(employed2 ~ . , family = binomial, data = r6)
+summary(glm6a)
+
+```
+
+```{r}
+
+r7 <- clean %>%
+            select(employed2, job_cat_H, jl_year_fired, age, age_H, age_sq, age_sq_H, dl06, dl06_H, dependents, working_dependents, other_HHM, other_working, sc_code, wave)
+
+glm7a <- glm(employed2 ~ . , family = binomial, data = r7)
+summary(glm7a)
+
+```
+
+```{r}
+
+#add fixed effects?
+clean$pidlink <- as.factor(clean$pidlink)
+
+r8 <- clean %>%
+            select(employed2, job_cat_H, jl_2, age, age_H, age_sq, age_sq_H, dl06, dl06_H, dependents, working_dependents, other_HHM, other_working, sc_code, wave, pidlink)
+
+#glm8a <- glm(employed2 ~ . , family = binomial, data = r8)
+#summary(glm8a)
+
+#remove NA
+r9 <- r8 %>%
+      na.omit() %>%
+      group_by(pidlink) %>%
+      mutate(repeats = n()) %>%
+      filter(repeats == 2) %>%
+      select(- repeats)
+
+
+fe1 <- pdata.frame(r8, index=c("pidlink"), drop.index=TRUE, row.names=TRUE)
+
+fe_mod_1 <- plm(formula = employed2 ~ job_cat_H + jl_2 + age + age_H + age_sq + age_sq_H + dl06 + dl06_H + dependents + working_dependents + other_HHM + other_working + sc_code + wave, data = fe1, model = "within")
+  
+fe_mod_2 <- plm(formula = employed2 ~ job_cat_H + jl_2 + age + age_H + age_sq + age_sq_H + dl06 + dl06_H + dependents + working_dependents + other_HHM + other_working + wave, data = fe1, model = "within")
+
+fe_mod_3 <- plm(formula = employed2 ~ job_cat_H + jl_2 + age + age_H + age_sq + age_sq_H + dl06 + dependents + working_dependents + other_HHM + other_working + wave, data = fe1, model = "within")
+
+summary(fe_mod_1)
+summary(fe_mod_2)
+summary(fe_mod_3)
+
+```
+
+```{r}
+
+#looking for var the impact participation, but not hours
+
+clean$wage_prof <- ifelse(!(is.na(clean$tk25a1)), clean$tk25a1, ifelse(!(is.na(clean$tk26a1)), clean$tk26a1, NA))
+
+#create a subset of wives with wage and hours data
+workers <- clean %>%
+            filter(employed == 1, (!(is.na(tk25a1)) | !(is.na(tk26a1))) & !(is.na(tk22a)))
+
+h1 <- workers %>%
+            select(wage_prof, job_cat, job_cat_H, jl_2, age, age_H, age_sq, age_sq_H, dl06, dl06_H, dependents, working_dependents, other_HHM, other_working, sc_code, wave, tk22a)
+
+#first hours regression
+hours1a <- glm(tk22a ~ . , data = h1)
+summary(hours1a)
+
+hours1b <- glm(tk22a ~ . - job_cat_H , data = h1)
+summary(hours1b)
+
+
 
 ```
