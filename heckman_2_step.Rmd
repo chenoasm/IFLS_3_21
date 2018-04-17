@@ -1,0 +1,11 @@
+---
+title: "heckman_2_step"
+author: "Chenoa Schatzki-McClain"
+date: "April 16, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+

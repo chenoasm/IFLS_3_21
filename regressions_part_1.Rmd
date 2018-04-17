@@ -10,6 +10,16 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
+
+### PREFERRED MODELS
+
+#glm5c
+
+#glm6b
+
+```
+
+```{r}
 library(dplyr)
 library(sampleSelection)
 library(ggplot2)
@@ -106,7 +116,7 @@ summary(glm4b)
 
 ```
 
-```{r}
+```{r glm5}
 
 #eliminate unpaid family workers from employed
 
@@ -118,9 +128,26 @@ r5 <- clean %>%
 
 glm5a <- glm(employed2 ~ . , family = binomial, data = r5)
 summary(glm5a)
+
+glm5b <- glm(employed2 ~ . - dl06_H, family = binomial, data = r5)
+summary(glm5b)
+
+#husband's education is not significant, remove from model
+anova(glm5b, glm5a, test = "LRT")
+
+glm5c <- glm(employed2 ~ . - dl06_H -employed2_H, family = binomial, data = r5)
+summary(glm5c)
+
+glm5d <- glm(employed2 ~ . - dl06_H -employed2_H - sc_code, family = binomial, data = r5)
+summary(glm5d)
+
+#region is significant, keep in model
+anova(glm5d, glm5c, test = "LRT")
+
+
 ```
 
-```{r}
+```{r glm6}
 
 #include recoded industry variable
 
@@ -133,13 +160,13 @@ ggplot(clean, aes(x= tk24a, y = tk25a1)) +
       ylim(0, 50000000)
 
 #new job cat
-cats <- c("self-employed", "self-employed", "informal business", "government", "private", "unemployed", "casual", "casual")
+cats <- c("2:self-employed", "2:self-employed", "3:informal business", "4:government", "5:private", "1:unemployed", "6:casual", "6:casual")
 
 clean$job_cat_H <- c()
 
 for(i in 1:nrow(clean)){
     if(clean$employed_H[i] == 0){
-          clean$job_cat_H[i] <- "unemployed"
+          clean$job_cat_H[i] <- "1:unemployed"
     }
     else {
           clean$job_cat_H[i] <- cats[as.numeric(clean$tk24a_H[i])]
@@ -150,18 +177,34 @@ clean$job_cat <- c()
 
 for(i in 1:nrow(clean)){
     if(clean$employed[i] == 0){
-          clean$job_cat[i] <- "unemployed"
+          clean$job_cat[i] <- "1:unemployed"
     }
     else {
           clean$job_cat[i] <- cats[as.numeric(clean$tk24a[i])]
     }
 }
 
+clean$job_cat <- as.factor(clean$job_cat)
+clean$job_cat_H <- as.factor(clean$job_cat_H)
+
 r6 <- clean %>%
             select(employed2, job_cat_H, jl_2, age, age_H, age_sq, age_sq_H, dl06, dl06_H, dependents, working_dependents, other_HHM, other_working, sc_code, wave)
                 
 glm6a <- glm(employed2 ~ . , family = binomial, data = r6)
 summary(glm6a)
+
+glm6b <- glm(employed2 ~ . - dl06_H, family = binomial, data = r6)
+summary(glm6b)
+
+#husband's education is not significant
+anova(glm6b, glm6a, test = "LRT")
+
+glm6c <- glm(employed2 ~ . - dl06_H - sc_code, family = binomial, data = r6)
+summary(glm6c)
+
+# region still significant
+anova(glm6c, glm6b, test = "LRT")
+
 
 ```
 
@@ -226,9 +269,25 @@ h1 <- workers %>%
 hours1a <- glm(tk22a ~ . , data = h1)
 summary(hours1a)
 
-hours1b <- glm(tk22a ~ . - job_cat_H , data = h1)
+hours1b <- glm(tk22a ~ . - job_cat_H -age_H - age_sq_H, data = h1)
 summary(hours1b)
 
+```
+
+```{r heckman1}
+
+h1_data <- clean %>% select(employed2, job_cat_H, jl_2, age, age_H, age_sq, age_sq_H, dl06, dependents, working_dependents, other_HHM, other_working, sc_code, wave, wage_prof)
+           
+
+p1_data <- h1_data %>% select(- wage_prof)
+
+#probit1 based on glm6b
+probit1 <- glm(employed2 ~ . , family = binomial (link = "probit"), data = p1_data)
+summary(probit1)
+
+mills <- invMillsRatio(probit1)$IMR1
+
+heckit1 <- lm(tk22a ~ . - employed2 - job_cat_H - dependents + mills, data = p1_data[ p1_data$lfp == 1, ] )
 
 
 ```
