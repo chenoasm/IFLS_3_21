@@ -9,7 +9,7 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r preferred model notes}
 
 ### PREFERRED MODELS
 
@@ -24,6 +24,7 @@ library(dplyr)
 library(sampleSelection)
 library(ggplot2)
 library(plm)
+library(tidyr)
 ```
 
 ```{r clear environment}
@@ -50,20 +51,20 @@ r1 <- clean %>%
             select(employed, employed_H, jl, age, age_H, age_sq, age_sq_H, dl06, dl06_H, dependents, working_dependents, other_HHM, other_working, sc_code, wave)
 ```
 
-```{r}
+```{r glm1}
 
 #first regression
 
-glm1 <- glm(employed ~ . , family = binomial, data = r1)
-summary(glm1)
+glm1a <- glm(employed ~ . , family = binomial, data = r1)
+summary(glm1a)
 
-glm2 <- glm(employed ~ . - age_H - age_sq_H, family = binomial, data = r1)
-summary(glm2)
+glm1b <- glm(employed ~ . - age_H - age_sq_H, family = binomial, data = r1)
+summary(glm1b)
 
 ```
 
 ```{r}
-#subset to variables of interest
+#subset to variables of interest - use jl_year rather than jl
 r2 <- clean %>%
             select(employed, employed_H, jl_year, age, age_H, age_sq, age_sq_H, dl06, dl06_H, dependents, working_dependents, other_HHM, other_working, sc_code, wave)
 
@@ -241,14 +242,21 @@ r9 <- r8 %>%
 fe1 <- pdata.frame(r8, index=c("pidlink"), drop.index=TRUE, row.names=TRUE)
 
 fe_mod_1 <- plm(formula = employed2 ~ job_cat_H + jl_2 + age + age_H + age_sq + age_sq_H + dl06 + dl06_H + dependents + working_dependents + other_HHM + other_working + sc_code + wave, data = fe1, model = "within")
-  
+
+#removed sc_code, makes sense, as regions is captured by HH fe  
 fe_mod_2 <- plm(formula = employed2 ~ job_cat_H + jl_2 + age + age_H + age_sq + age_sq_H + dl06 + dl06_H + dependents + working_dependents + other_HHM + other_working + wave, data = fe1, model = "within")
 
+#removed dl06_H
 fe_mod_3 <- plm(formula = employed2 ~ job_cat_H + jl_2 + age + age_H + age_sq + age_sq_H + dl06 + dependents + working_dependents + other_HHM + other_working + wave, data = fe1, model = "within")
 
 summary(fe_mod_1)
 summary(fe_mod_2)
 summary(fe_mod_3)
+
+#need to test for significance of sc_code, but anova won't work
+#anova(fe_mod_2, fe_mod_1, test = "LRT")
+
+
 
 ```
 
@@ -276,18 +284,60 @@ summary(hours1b)
 
 ```{r heckman1}
 
-h1_data <- clean %>% select(employed2, job_cat_H, jl_2, age, age_H, age_sq, age_sq_H, dl06, dependents, working_dependents, other_HHM, other_working, sc_code, wave, wage_prof)
-           
+h1_data <- clean %>% 
+                select(employed2, job_cat_H, tk23a2y, jl_2, age, age_H, age_sq, age_sq_H, job_cat, dl06, dependents, working_dependents, other_HHM, other_working, sc_code, wave, wage_prof, tk22a) %>%
+                drop_na(- c(wage_prof, tk22a, job_cat, tk23a2y))
 
-p1_data <- h1_data %>% select(- wage_prof)
+p1_data <- h1_data %>%
+              select(-c(wage_prof, tk22a, job_cat, tk23a2y))
 
 #probit1 based on glm6b
 probit1 <- glm(employed2 ~ . , family = binomial (link = "probit"), data = p1_data)
 summary(probit1)
 
-mills <- invMillsRatio(probit1)$IMR1
+h1_data$mills <- invMillsRatio(probit1)$IMR1
 
-heckit1 <- lm(tk22a ~ . - employed2 - job_cat_H - dependents + mills, data = p1_data[ p1_data$lfp == 1, ] )
+heckit1 <- lm(tk22a ~ . - employed2 - job_cat_H - dependents - other_HHM - other_working + mills, data = h1_data[ h1_data$employed2 == 1, ] )
 
+summary(heckit1)
+
+heckit2 <- lm(tk22a ~ . - employed2 - job_cat_H - dependents - other_HHM - other_working - sc_code + mills, data = h1_data[ h1_data$employed2 == 1, ] )
+summary(heckit2)
+
+#region is significant, keep in model
+anova(heckit2, heckit1, test = "LRT")
+
+#remove age_H
+heckit3 <- lm(tk22a ~ . - employed2 - job_cat_H - dependents - other_HHM - other_working - age_H - age_sq_H + mills, data = h1_data[ h1_data$employed2 == 1, ] )
+summary(heckit3)
+
+
+```
+
+\newpage
+
+```{r results of interest}
+#OVERVIEW of RESULTS
+
+#model with job loss coded as a binomial (could consider narrowing the time period to job loss in past two years)
+summary(glm1b)
+
+#model with job loss year
+summary(glm2b)
+
+#model with job loss coded as binomial, unpaid family workers reclassified as unemployed
+summary(glm5c)
+
+#model with job loss years, unpaid family workers reclassified as unemployed
+summary(glm6b)
+
+#model with job loss coded as binomial, unpaid family workers w/ fixed effects
+summary(fe_mod_3)
+
+#probit model for heckman
+summary(probit1)
+
+#heckman model
+summary(heckit3)
 
 ```

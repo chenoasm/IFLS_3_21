@@ -43,7 +43,7 @@ B3A_TK1 <- B3A_TK1 %>%
 B3A_TK2 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS5/b3a_tk2.dta")
 #subset
 B3A_TK2 <- B3A_TK2 %>%
-                select(pid14, hhid14, hhid14_9, pidlink, tk22a, tk23a, tk24a, tk25a1x, tk24a5, tk25a1, tk25a2, tk26a1, tk26a3)
+                select(pid14, hhid14, hhid14_9, pidlink, tk22a, tk23a, tk23a2y, tk24a, tk25a1x, tk24a5, tk25a1, tk25a2, tk26a1, tk26a3)
 
 #load B3A_TK4 IFLS5
 B3A_TK4 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS5/b3a_tk4.dta")
