@@ -37,6 +37,8 @@ rm(list=ls())
 #load data
 clean <- read.csv("C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/clean_4_10.csv")
 
+clean$jl_restricted <- ifelse(clean$jl_year %in% 1:2, 1, 0)
+
 clean$employed <- ifelse(as.numeric(clean$employed) == 1, 1, 0)
 clean$jl <- ifelse(clean$jl_year == "0", "0", "1")
 clean$age_sq <- (clean$age)^2
@@ -45,6 +47,20 @@ clean$jl_year <- as.factor(clean$jl_year)
 clean$sc_code <- as.factor(clean$sc_code)
 clean$wave <- as.factor(clean$wave)
 
+#wage prof
+clean$wage_prof <- ifelse(!(is.na(clean$tk25a1)), clean$tk25a1, ifelse(!(is.na(clean$tk26a1)), clean$tk26a1, NA))
+
+#remove wage outlier >>> optimize this value later on
+clean <- clean %>%
+              filter(!(!(is.na(wage_prof)) & wage_prof > 10000000))
+
+#remove workers with no hours <<< loook at this later
+clean <- clean %>%
+              filter(!(!(is.na(clean$tk22a)) & clean$tk22a == 0))
+
+#remove workers with no wage <<< look at the later
+clean <- clean %>%
+              filter(!(!(is.na(wage_prof)) & wage_prof == 0))
 
 #subset to variables of interest
 r1 <- clean %>%
@@ -209,6 +225,24 @@ anova(glm6c, glm6b, test = "LRT")
 
 ```
 
+```{r restricted jl var}
+
+
+#version of glm5c
+restricted1 <- clean %>%
+            select(employed2, jl_restricted, age, age_H, age_sq, age_sq_H, dl06, dependents, working_dependents, other_HHM, other_working, sc_code, wave)
+
+restricted1a <- glm(employed2 ~ ., family = binomial, data = restricted1)
+summary(restricted1a)
+
+
+#RESTRICTING JL YEARS DOES NOT SUBSTANCIALLY CHANGE THE COEFFICIENT on JL (only p value)
+summary(glm5c)
+
+
+
+```
+
 ```{r}
 
 r7 <- clean %>%
@@ -264,7 +298,7 @@ summary(fe_mod_3)
 
 #looking for var the impact participation, but not hours
 
-clean$wage_prof <- ifelse(!(is.na(clean$tk25a1)), clean$tk25a1, ifelse(!(is.na(clean$tk26a1)), clean$tk26a1, NA))
+
 
 #create a subset of wives with wage and hours data
 workers <- clean %>%
@@ -307,16 +341,54 @@ summary(heckit2)
 #region is significant, keep in model
 anova(heckit2, heckit1, test = "LRT")
 
+#just employed
+h1_employed <- h1_data[ h1_data$employed2 == 1, ] %>%
+                  drop_na()
+
+
 #remove age_H
-heckit3 <- lm(tk22a ~ . - employed2 - job_cat_H - dependents - other_HHM - other_working - age_H - age_sq_H + mills, data = h1_data[ h1_data$employed2 == 1, ] )
+heckit3 <- lm(tk22a ~ . - employed2 - job_cat_H - dependents - other_HHM - other_working - age_H - age_sq_H + mills, data = h1_employed )
 summary(heckit3)
+
+#look at a plot of resid vs. fitted values >> evidence of heteroskedasticity
+plot(resid(heckit3)~ h1_employed$wage_prof)
+abline(h=0, lty='dashed', col='gray')
+
+#yikes!!
+plot(resid(heckit3)~ h1_employed$tk22a)
+abline(h=0, lty='dashed', col='gray')
+
+#look at a plot of wage vs. fitted values >> evidence of heteroskedasticity
+plot(resid(heckit3)~ fitted.values(heckit3))
+abline(h=0, lty='dashed', col='gray')
+
+yikes <- h1_employed[which(fitted.values(heckit3) > 120),]
+
+#try transforming hours
+
+heckit4 <- lm(log(tk22a) ~ . - employed2 - job_cat_H - dependents - other_HHM - other_working - age_H - age_sq_H + mills, data = h1_employed )
+summary(heckit4)
+
+#ooof
+plot(resid(heckit4)~ h1_employed$tk22a)
+abline(h=0, lty='dashed', col='gray')
+
+#not good
+plot(resid(heckit4)~ fitted.values(heckit4))
+abline(h=0, lty='dashed', col='gray')
+
+#transform wage??
+heckit5 <- lm(tk22a ~ . + log(wage_prof) - employed2 - job_cat_H - dependents - other_HHM - other_working - age_H - age_sq_H + mills, data = h1_employed )
+summary(heckit5)
+
+
 
 
 ```
 
 \newpage
 
-```{r results of interest}
+```{r results of interest, tidy = TRUE}
 #OVERVIEW of RESULTS
 
 #model with job loss coded as a binomial (could consider narrowing the time period to job loss in past two years)
