@@ -205,7 +205,7 @@ wives_repeated_H <- wives %>%
 household_mother_summary <- BK_AR1 %>%
                         filter(!(ar11 %in% c(51, 52, 98))) %>%
                         group_by(hhid14, ar11) %>%
-                        summarize(dependents = sum(ar09 < 15), working_dependents = sum(ar09 < 15 & as.numeric(ar15a) == 1))
+                        summarize(dependents = sum(ar09 < 15), dependents_young = sum(ar09 < 6), dependents_old = sum(ar09> 5 & ar09 < 15), working_dependents = sum(ar09 < 15 & as.numeric(ar15a) == 1))
 
 
 household_member_summary <- BK_AR1 %>%
@@ -217,7 +217,7 @@ household_member_summary <- BK_AR1 %>%
 #add dependents and working dependents to wives' data
 wives <- wives %>%
             left_join(household_mother_summary, by = c("hhid14" = "hhid14", "pid14" = "ar11")) %>%
-            mutate (dependents = ifelse(is.na(dependents), 0, dependents), working_dependents = ifelse(is.na(working_dependents), 0, working_dependents))
+            mutate (dependents = ifelse(is.na(dependents), 0, dependents), working_dependents = ifelse(is.na(working_dependents), 0, working_dependents), dependents_young = ifelse(is.na(dependents_young), 0, dependents_young), dependents_old = ifelse(is.na(dependents_old), 0, dependents_old))
 
 #add HHM data to wives data
 wives <- wives %>%

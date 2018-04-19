@@ -214,3 +214,13 @@ wage_avail <- emp_husbands %>%
 
 
 ```
+
+```{r}
+
+#number of dependents in sample
+sum(clean$dependents)
+sum(clean$working_dependents)
+
+```
+
+

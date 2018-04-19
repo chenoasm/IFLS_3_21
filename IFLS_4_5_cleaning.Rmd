@@ -1,5 +1,5 @@
 ---
-title: "IFLS_4_5 Cleaning"
+title: "IFLS_4_5 IFLS_4_5ing"
 author: "Chenoa Schatzki-McClain"
 date: "April 7, 2018"
 output: pdf_document
@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 
 library(lubridate)
+library(dplyr)
 
 ```
 
@@ -180,17 +181,88 @@ for (i in 1:length(vars)){
 #wave should be factor
 IFLS_4_5$year <- as.factor(IFLS_4_5$wave)
 
-#region should be factor
-IFLS_4_5$sc_code <- as.factor(IFLS_4_5$sc_code)
-
 #remove hours top coding
 IFLS_4_5$tk22a <- ifelse(IFLS_4_5$tk22a > 120, NA, IFLS_4_5$tk22a)
 IFLS_4_5$tk22a_H <- ifelse(IFLS_4_5$tk22a_H > 120, NA, IFLS_4_5$tk22a_H)
 
 ```
 
+```{r additional IFLS_4_5ing}
+
+IFLS_4_5$jl_restricted <- ifelse(IFLS_4_5$jl_year %in% 1:2, 1, 0)
+
+IFLS_4_5$employed <- ifelse(as.numeric(IFLS_4_5$employed) == 1, 1, 0)
+IFLS_4_5$jl <- ifelse(IFLS_4_5$jl_year == "0", "0", "1")
+IFLS_4_5$age_sq <- (IFLS_4_5$age)^2
+IFLS_4_5$age_sq_H <- (IFLS_4_5$age_H)^2
+IFLS_4_5$jl_year <- as.factor(IFLS_4_5$jl_year)
+IFLS_4_5$sc_code <- as.factor(IFLS_4_5$sc_code)
+IFLS_4_5$wave <- as.factor(IFLS_4_5$wave)
+
+#wage prof
+IFLS_4_5$wage_prof <- ifelse(!(is.na(IFLS_4_5$tk25a1)), IFLS_4_5$tk25a1, ifelse(!(is.na(IFLS_4_5$tk26a1)), IFLS_4_5$tk26a1, NA))
+
+#remove wage outlier >>> optimize this value later on
+#IFLS_4_5 <- IFLS_4_5 %>%
+#              filter(!(!(is.na(wage_prof)) & wage_prof > 10000000))
+
+#remove workers with no hours <<< loook at this later
+IFLS_4_5 <- IFLS_4_5 %>%
+              filter(!(!(is.na(IFLS_4_5$tk22a)) & IFLS_4_5$tk22a == 0))
+
+#remove workers with no wage <<< look at the later
+IFLS_4_5 <- IFLS_4_5 %>%
+              filter(!(!(is.na(wage_prof)) & wage_prof == 0))
+
+#limit job loss to firing/displacement
+IFLS_4_5$jl_2 <- ifelse(IFLS_4_5$jl == "1" & as.numeric(IFLS_4_5$tk46m_H) %in% c(1, 2, 5), 1, 0)
+
+#limit jl_year based on firings
+IFLS_4_5$jl_year_fired <- ifelse(IFLS_4_5$jl_year != "0" & !(as.numeric(IFLS_4_5$tk46m_H) %in% c(1, 2, 5)), 0, as.numeric(IFLS_4_5$jl_year)-1)
+IFLS_4_5$jl_year_fired <- as.factor(IFLS_4_5$jl_year_fired)
+
+#eliminate unpaid family workers from employed (employed2)
+
+IFLS_4_5$employed2 <- ifelse(IFLS_4_5$employed == 1 & as.numeric(IFLS_4_5$tk24a) == 6, 0, IFLS_4_5$employed)
+IFLS_4_5$employed2_H <- ifelse(as.numeric(IFLS_4_5$employed_H) == 1 & as.numeric(IFLS_4_5$tk24a_H) == 6, 0, as.numeric(IFLS_4_5$employed_H))
+
+IFLS_4_5$pidlink <- as.factor(IFLS_4_5$pidlink)
+```
+
+```{r create job categories}
+
+#new job cat
+cats <- c("2:self-employed", "2:self-employed", "3:informal business", "4:government", "5:private", "1:unemployed", "6:casual", "6:casual")
+
+IFLS_4_5$job_cat_H <- c()
+
+for(i in 1:nrow(IFLS_4_5)){
+    if(IFLS_4_5$employed_H[i] == 0){
+          IFLS_4_5$job_cat_H[i] <- "1:unemployed"
+    }
+    else {
+          IFLS_4_5$job_cat_H[i] <- cats[as.numeric(IFLS_4_5$tk24a_H[i])]
+    }
+}
+
+IFLS_4_5$job_cat <- c()
+
+for(i in 1:nrow(IFLS_4_5)){
+    if(IFLS_4_5$employed[i] == 0){
+          IFLS_4_5$job_cat[i] <- "1:unemployed"
+    }
+    else {
+          IFLS_4_5$job_cat[i] <- cats[as.numeric(IFLS_4_5$tk24a[i])]
+    }
+}
+
+IFLS_4_5$job_cat <- as.factor(IFLS_4_5$job_cat)
+IFLS_4_5$job_cat_H <- as.factor(IFLS_4_5$job_cat_H)
+
+```
+
 ```{r}
 
-write.csv(IFLS_4_5, file = "C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/clean_4_10.csv")
+write.csv(IFLS_4_5, file = "C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/IFLS_4_5.csv")
 
 ```
