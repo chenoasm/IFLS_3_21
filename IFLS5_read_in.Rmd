@@ -248,6 +248,30 @@ wives <- wives %>%
 
 ```
 
+```{r HH assets}
+
+#B3A_HR1
+
+#B3A_HR1 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS5/b3a_hr1.dta")
+
+#B3A_HR1_edit <- B3A_HR1 %>%
+ #               filter(hr01 == 1) %>%
+  #              group_by(hhid14) %>%
+                #summarize(no_assets = (sum(hr01 ==1) == 0))
+   #             summarize(missing_assets = sum(hr02x %in% 7:8), assets = sum(hr02))
+
+#add assets to HH data
+
+#add assets data to HH data
+#wives <- wives %>%
+ #           left_join(B3A_HR1_edit)
+
+
+```
+
+
+
+
 ```{r recode to match IFLS4}
 
 wives$tk01 <- ifelse(as.numeric(wives$tk01) == 7, NA, as.character(wives$tk01))
