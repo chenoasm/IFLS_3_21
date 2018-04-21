@@ -266,11 +266,22 @@ h1 <- workers %>%
             select(wage_prof, job_cat, job_cat_H, jl_2, age, age_H, age_sq, age_sq_H, dl06, dl06_H, dependents, working_dependents, other_HHM, other_working, sc_code, wave, tk22a)
 
 #first hours regression
-hours1a <- glm(tk22a ~ . , data = h1)
+hours1a <- lm(tk22a ~ . , data = h1)
 summary(hours1a)
 
-hours1b <- glm(tk22a ~ . - job_cat_H -age_H - age_sq_H, data = h1)
+hours1b <- lm(tk22a ~ . - job_cat_H -age_H - age_sq_H, data = h1)
 summary(hours1b)
+
+plot(resid(hours1b)~ fitted.values(hours1b))
+
+#should I be using a Poisson regression??
+
+pois1 <- glm(tk22a ~ . - job_cat_H - age_H - age_sq_H - dl06_H, data = h1, family = poisson)
+summary(pois1)
+
+plot(resid(pois1) ~ fitted.values(pois1))
+
+
 
 ```
 
@@ -339,14 +350,14 @@ abline(h=0, lty='dashed', col='gray')
 plot(resid(heckit4)~ fitted.values(heckit4))
 abline(h=0, lty='dashed', col='gray')
 
+#maybe this is just a heckman thing??
+plot(resid(heckit4)~ h1_employed$mills)
+abline(h=0, lty='dashed', col='gray')
+
+
 #transform wage??
 heckit5 <- lm(tk22a ~ . + log(wage_prof) - employed2 - job_cat_H - dependents - other_HHM - other_working - age_H - age_sq_H + mills, data = h1_employed )
 summary(heckit5)
-
-
-
-
-
 
 ```
 

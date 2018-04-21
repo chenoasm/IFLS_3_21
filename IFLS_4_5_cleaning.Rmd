@@ -206,11 +206,11 @@ IFLS_4_5$wage_prof <- ifelse(!(is.na(IFLS_4_5$tk25a1)), IFLS_4_5$tk25a1, ifelse(
 #IFLS_4_5 <- IFLS_4_5 %>%
 #              filter(!(!(is.na(wage_prof)) & wage_prof > 10000000))
 
-#remove workers with no hours <<< loook at this later
+#remove workers with no hours (none removed)
 IFLS_4_5 <- IFLS_4_5 %>%
               filter(!(!(is.na(IFLS_4_5$tk22a)) & IFLS_4_5$tk22a == 0))
 
-#remove workers with no wage <<< look at the later
+#remove workers with no wage << not an issue (none removed)
 IFLS_4_5 <- IFLS_4_5 %>%
               filter(!(!(is.na(wage_prof)) & wage_prof == 0))
 
