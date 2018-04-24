@@ -192,6 +192,7 @@ IFLS_4_5$tk22a_H <- ifelse(IFLS_4_5$tk22a_H > 120, NA, IFLS_4_5$tk22a_H)
 IFLS_4_5$jl_restricted <- ifelse(IFLS_4_5$jl_year %in% 1:2, 1, 0)
 
 IFLS_4_5$employed <- ifelse(as.numeric(IFLS_4_5$employed) == 1, 1, 0)
+IFLS_4_5$employed_H <- ifelse(as.numeric(IFLS_4_5$employed_H) == 1, 1, 0)
 IFLS_4_5$jl <- ifelse(IFLS_4_5$jl_year == "0", "0", "1")
 IFLS_4_5$age_sq <- (IFLS_4_5$age)^2
 IFLS_4_5$age_sq_H <- (IFLS_4_5$age_H)^2
@@ -201,6 +202,8 @@ IFLS_4_5$wave <- as.factor(IFLS_4_5$wave)
 
 #wage prof
 IFLS_4_5$wage_prof <- ifelse(!(is.na(IFLS_4_5$tk25a1)), IFLS_4_5$tk25a1, ifelse(!(is.na(IFLS_4_5$tk26a1)), IFLS_4_5$tk26a1, NA))
+
+IFLS_4_5$wage_prof_H <- ifelse(!(is.na(IFLS_4_5$tk25a1)), IFLS_4_5$tk25a1, ifelse(!(is.na(IFLS_4_5$tk26a1)), IFLS_4_5$tk26a1, NA))
 
 #remove wage outlier >>> optimize this value later on
 #IFLS_4_5 <- IFLS_4_5 %>%
@@ -214,6 +217,14 @@ IFLS_4_5 <- IFLS_4_5 %>%
 IFLS_4_5 <- IFLS_4_5 %>%
               filter(!(!(is.na(wage_prof)) & wage_prof == 0))
 
+#remove observations for which the wife or husband are younger than 18
+IFLS_4_5 <- IFLS_4_5 %>%
+              filter(age >= 16, age_H >= 16, age<80, age_H <80)
+
+#remove observations for students
+IFLS_4_5 <- IFLS_4_5 %>%
+              filter(!(!(is.na(dl07a)) & as.numeric(dl07a) == 1) &  !(!(is.na(dl07a_H)) & as.numeric(dl07a_H) == 1))
+
 #limit job loss to firing/displacement
 IFLS_4_5$jl_2 <- ifelse(IFLS_4_5$jl == "1" & as.numeric(IFLS_4_5$tk46m_H) %in% c(1, 2, 5), 1, 0)
 
@@ -224,9 +235,13 @@ IFLS_4_5$jl_year_fired <- as.factor(IFLS_4_5$jl_year_fired)
 #eliminate unpaid family workers from employed (employed2)
 
 IFLS_4_5$employed2 <- ifelse(IFLS_4_5$employed == 1 & as.numeric(IFLS_4_5$tk24a) == 6, 0, IFLS_4_5$employed)
-IFLS_4_5$employed2_H <- ifelse(as.numeric(IFLS_4_5$employed_H) == 1 & as.numeric(IFLS_4_5$tk24a_H) == 6, 0, as.numeric(IFLS_4_5$employed_H))
+IFLS_4_5$employed2_H <- ifelse(IFLS_4_5$employed_H == 1 & as.numeric(IFLS_4_5$tk24a_H) == 6, 0, IFLS_4_5$employed_H)
 
 IFLS_4_5$pidlink <- as.factor(IFLS_4_5$pidlink)
+
+
+
+
 ```
 
 ```{r create job categories}
@@ -263,6 +278,6 @@ IFLS_4_5$job_cat_H <- as.factor(IFLS_4_5$job_cat_H)
 
 ```{r}
 
-write.csv(IFLS_4_5, file = "C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/IFLS_4_5.csv")
+write.csv(IFLS_4_5, file = "C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/IFLS_4_5_clean.csv")
 
 ```

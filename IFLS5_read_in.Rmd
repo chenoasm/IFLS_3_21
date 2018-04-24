@@ -96,7 +96,7 @@ B3A_DL1 <- read.dta("C:/Users/cheno/Desktop/IFLS_all/DATA/IFLS5/b3a_dl1.dta")
 
 #subset
 B3A_DL1 <- B3A_DL1 %>%
-                select(pid14, hhid14, pidlink, dl06x, dl06, dl04)
+                select(pid14, hhid14, pidlink, dl06x, dl06, dl04, dl07a)
 
 
 ```
@@ -171,7 +171,7 @@ wives <- merged %>%
 #subset data on husbands
 husbands <- merged %>%
               filter(as.numeric(sex) == 1, as.numeric(marstat) == 2) %>%
-              select(hhid14, pid14, age, tk22a, tk24a, tk24a5, tk25a1x, tk25a1, tk25a2, tk26a1, tk26a3, tk46a, tk46b, tk46c, tk46dm, tk46dy, tk46m, tk01, tk01a, tk03, tk04, tk05, tk06a, tk07, dl04, dl06, dl06x, ar14)
+              select(hhid14, pid14, age, tk22a, tk24a, tk24a5, tk25a1x, tk25a1, tk25a2, tk26a1, tk26a3, tk46a, tk46b, tk46c, tk46dm, tk46dy, tk46m, tk01, tk01a, tk03, tk04, tk05, tk06a, tk07, dl04, dl07a, dl06, dl06x, ar14)
 
 #rename husband vars
 names(husbands)[2:length(husbands)] <- paste0(names(husbands)[2:length(husbands)], "_H") 
@@ -291,6 +291,11 @@ wives$tk46dy_H <- ifelse(wives$tk46dy_H %in%c(9998, 9999), NA, wives$tk46dy_H)
 #recode dl04 and dl04_H
 wives$dl04 <- ifelse(wives$dl04 == "8:MISSING" | wives$dl04 == "9:Don't Know", NA, as.character(wives$dl04))
 wives$dl04_H <- ifelse(wives$dl04_H == "8:MISSING" | wives$dl04_H == "9:Don't Know", NA, as.character(wives$dl04_H))
+
+
+#recode dl07a and dl07a_H
+wives$dl07a <- ifelse(wives$dl07a == "8:Don't Know", NA, as.character(wives$dl07a))
+wives$dl07a_H <- ifelse(wives$dl07a_H == "8:Don't Know", NA, as.character(wives$dl07a_H))
 
 #recode tk24a
 wives$tk24a <- ifelse(wives$tk24a == "9:Missing", NA, as.character(wives$tk24a))

@@ -35,7 +35,7 @@ rm(list=ls())
 
 ```{r}
 #load data
-clean <- read.csv("C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/IFLS_4_5.csv")
+clean <- read.csv("C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/IFLS_4_5_clean.csv")
 
 #region should be factor
 clean$sc_code <- as.factor(clean$sc_code)
