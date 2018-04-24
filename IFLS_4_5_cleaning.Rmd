@@ -203,7 +203,7 @@ IFLS_4_5$wave <- as.factor(IFLS_4_5$wave)
 #wage prof
 IFLS_4_5$wage_prof <- ifelse(!(is.na(IFLS_4_5$tk25a1)), IFLS_4_5$tk25a1, ifelse(!(is.na(IFLS_4_5$tk26a1)), IFLS_4_5$tk26a1, NA))
 
-IFLS_4_5$wage_prof_H <- ifelse(!(is.na(IFLS_4_5$tk25a1)), IFLS_4_5$tk25a1, ifelse(!(is.na(IFLS_4_5$tk26a1)), IFLS_4_5$tk26a1, NA))
+IFLS_4_5$wage_prof_H <- ifelse(!(is.na(IFLS_4_5$tk25a1_H)), IFLS_4_5$tk25a1_H, ifelse(!(is.na(IFLS_4_5$tk26a1_H)), IFLS_4_5$tk26a1_H, NA))
 
 #remove wage outlier >>> optimize this value later on
 #IFLS_4_5 <- IFLS_4_5 %>%
@@ -219,11 +219,16 @@ IFLS_4_5 <- IFLS_4_5 %>%
 
 #remove observations for which the wife or husband are younger than 18
 IFLS_4_5 <- IFLS_4_5 %>%
-              filter(age >= 16, age_H >= 16, age<80, age_H <80)
+              filter(age >= 18, age_H >= 18, age<80, age_H <80)
 
 #remove observations for students
 IFLS_4_5 <- IFLS_4_5 %>%
               filter(!(!(is.na(dl07a)) & as.numeric(dl07a) == 1) &  !(!(is.na(dl07a_H)) & as.numeric(dl07a_H) == 1))
+
+#remove observations where individual is unemployed, but has wage and hours
+IFLS_4_5 <- IFLS_4_5 %>%
+            filter(!(is.na(clean$wage_prof_H)) & as.numeric(clean$job_cat_H) == 1)
+
 
 #limit job loss to firing/displacement
 IFLS_4_5$jl_2 <- ifelse(IFLS_4_5$jl == "1" & as.numeric(IFLS_4_5$tk46m_H) %in% c(1, 2, 5), 1, 0)
