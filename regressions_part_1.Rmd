@@ -38,7 +38,9 @@ rm(list=ls())
 clean <- read.csv("C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/IFLS_4_5.csv")
 
 #region should be factor
-IFLS_4_5$sc_code <- as.factor(IFLS_4_5$sc_code)
+clean$sc_code <- as.factor(clean$sc_code)
+
+
 
 ```
 
@@ -341,6 +343,15 @@ yikes <- h1_employed[which(fitted.values(heckit3) > 120),]
 
 heckit4 <- lm(log(tk22a) ~ . - employed2 - job_cat_H - dependents - other_HHM - other_working - age_H - age_sq_H + mills, data = h1_employed )
 summary(heckit4)
+
+#try poisson model
+
+pois_heck1 <- glm(tk22a ~ . - employed2 - job_cat_H - dependents - other_HHM - other_working - age_H - age_sq_H + mills, data = h1_employed, family = poisson)
+summary(pois_heck1)
+
+
+
+
 
 #ooof
 plot(resid(heckit4)~ h1_employed$tk22a)
