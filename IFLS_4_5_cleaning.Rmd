@@ -201,9 +201,9 @@ IFLS_4_5$sc_code <- as.factor(IFLS_4_5$sc_code)
 IFLS_4_5$wave <- as.factor(IFLS_4_5$wave)
 
 #wage prof
-IFLS_4_5$wage_prof <- ifelse(!(is.na(IFLS_4_5$tk25a1)), IFLS_4_5$tk25a1, ifelse(!(is.na(IFLS_4_5$tk26a1)), IFLS_4_5$tk26a1, NA))
+IFLS_4_5$wage_prof <- ifelse(IFLS_4_5$employed == 0, NA, ifelse(!(is.na(IFLS_4_5$tk25a1)), IFLS_4_5$tk25a1, ifelse(!(is.na(IFLS_4_5$tk26a1)), IFLS_4_5$tk26a1, NA)))
 
-IFLS_4_5$wage_prof_H <- ifelse(!(is.na(IFLS_4_5$tk25a1_H)), IFLS_4_5$tk25a1_H, ifelse(!(is.na(IFLS_4_5$tk26a1_H)), IFLS_4_5$tk26a1_H, NA))
+IFLS_4_5$wage_prof_H <- ifelse(IFLS_4_5$employed_H == 0, NA, ifelse(!(is.na(IFLS_4_5$tk25a1_H)), IFLS_4_5$tk25a1_H, ifelse(!(is.na(IFLS_4_5$tk26a1_H)), IFLS_4_5$tk26a1_H, NA)))
 
 #remove wage outlier >>> optimize this value later on
 #IFLS_4_5 <- IFLS_4_5 %>%
@@ -224,11 +224,6 @@ IFLS_4_5 <- IFLS_4_5 %>%
 #remove observations for students
 IFLS_4_5 <- IFLS_4_5 %>%
               filter(!(!(is.na(dl07a)) & as.numeric(dl07a) == 1) &  !(!(is.na(dl07a_H)) & as.numeric(dl07a_H) == 1))
-
-#remove observations where individual is unemployed, but has wage and hours
-IFLS_4_5 <- IFLS_4_5 %>%
-            filter(!(is.na(clean$wage_prof_H)) & as.numeric(clean$job_cat_H) == 1)
-
 
 #limit job loss to firing/displacement
 IFLS_4_5$jl_2 <- ifelse(IFLS_4_5$jl == "1" & as.numeric(IFLS_4_5$tk46m_H) %in% c(1, 2, 5), 1, 0)
@@ -252,7 +247,7 @@ IFLS_4_5$pidlink <- as.factor(IFLS_4_5$pidlink)
 ```{r create job categories}
 
 #new job cat
-cats <- c("2:self-employed", "2:self-employed", "3:informal business", "4:government", "5:private", "1:unemployed", "6:casual", "6:casual")
+cats <- c("2:self-employed", "2:self-employed", "3:informal business owner", "4:government", "5:private", "1:unemployed", "6:casual", "6:casual")
 
 IFLS_4_5$job_cat_H <- c()
 
@@ -278,6 +273,13 @@ for(i in 1:nrow(IFLS_4_5)){
 
 IFLS_4_5$job_cat <- as.factor(IFLS_4_5$job_cat)
 IFLS_4_5$job_cat_H <- as.factor(IFLS_4_5$job_cat_H)
+
+#remove observations where individual is unemployed, but has wage and hours
+#IFLS_4_5_test <- IFLS_4_5 %>%
+#            filter((!(is.na(wage_prof_H)) & wage_prof_H != 0 & as.numeric(job_cat_H) == 1))
+
+
+
 
 ```
 
