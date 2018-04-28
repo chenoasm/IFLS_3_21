@@ -159,8 +159,11 @@ IFLS_4_5$jl_d_H <- mdy(IFLS_4_5$jl_d_H)
 #variable for time between survey and job loss
 IFLS_4_5$jl_year <- ceiling(ifelse(is.na(IFLS_4_5$jl_d_H), 0, interval(IFLS_4_5$jl_d_H, IFLS_4_5$interview_d)/dyears()))
 
+#month missing in many instances, compute based on year
+#IFLS_4_5$jl_year <- ifelse(is.na(IFLS_4_5$tk46dy_H), 0, IFLS_4_5$ivwyr - IFLS_4_5$tk46dy_H + 1)
+
 #recode for job losses beyond 5 years, likely a recording error, address in data section
-IFLS_4_5$jl_year <- ifelse(IFLS_4_5$jl_year %in% c(6,7,8,10, 11, 17), 0, IFLS_4_5$jl_year)
+IFLS_4_5$jl_year <- ifelse(IFLS_4_5$jl_year >5, 0, IFLS_4_5$jl_year)
 
 #convert to factor
 IFLS_4_5$jl_year <- as.factor(IFLS_4_5$jl_year)
@@ -193,7 +196,7 @@ IFLS_4_5$jl_restricted <- ifelse(IFLS_4_5$jl_year %in% 1:2, 1, 0)
 
 IFLS_4_5$employed <- ifelse(as.numeric(IFLS_4_5$employed) == 1, 1, 0)
 IFLS_4_5$employed_H <- ifelse(as.numeric(IFLS_4_5$employed_H) == 1, 1, 0)
-IFLS_4_5$jl <- ifelse(IFLS_4_5$jl_year == "0", "0", "1")
+IFLS_4_5$jl <- ifelse(IFLS_4_5$tk46b_H == "1:Yes" & !(is.na(IFLS_4_5$tk46b_H)), "1", "0")
 IFLS_4_5$age_sq <- (IFLS_4_5$age)^2
 IFLS_4_5$age_sq_H <- (IFLS_4_5$age_H)^2
 IFLS_4_5$jl_year <- as.factor(IFLS_4_5$jl_year)
