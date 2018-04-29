@@ -206,7 +206,13 @@ IFLS_4_5$wave <- as.factor(IFLS_4_5$wave)
 #wage prof
 IFLS_4_5$wage_prof <- ifelse(IFLS_4_5$employed == 0, NA, ifelse(!(is.na(IFLS_4_5$tk25a1)), IFLS_4_5$tk25a1, ifelse(!(is.na(IFLS_4_5$tk26a1)), IFLS_4_5$tk26a1, NA)))
 
+#adjust for inflation CPI 82.668 (2007), 90.75 (2008), 86.709 (2007/2008 average), 124.389 (2014)
+IFLS_4_5$wage_prof <- ifelse(!is.na(IFLS_4_5$wage_prof) & IFLS_4_5$wave == 4, IFLS_4_5$wage_prof / 86.709 * 124.389, IFLS_4_5$wage_prof)
+
 IFLS_4_5$wage_prof_H <- ifelse(IFLS_4_5$employed_H == 0, NA, ifelse(!(is.na(IFLS_4_5$tk25a1_H)), IFLS_4_5$tk25a1_H, ifelse(!(is.na(IFLS_4_5$tk26a1_H)), IFLS_4_5$tk26a1_H, NA)))
+
+#adjust for inflation
+IFLS_4_5$wage_prof_H <- ifelse(!is.na(IFLS_4_5$wage_prof_H) & IFLS_4_5$wave == 4, IFLS_4_5$wage_prof_H / 86.709 * 124.389, IFLS_4_5$wage_prof_H)
 
 #remove wage outlier >>> optimize this value later on
 #IFLS_4_5 <- IFLS_4_5 %>%
