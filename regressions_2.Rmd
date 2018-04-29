@@ -1,0 +1,459 @@
+---
+title: "regressions 2"
+author: "Chenoa Schatzki-McClain"
+date: "April 19, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+library(sampleSelection)
+library(ggplot2)
+library(plm)
+library(tidyr)
+library(scales)
+library(stringr)
+library(grDevices)
+library(qwraps2)
+library(stargazer)
+```
+
+```{r clear environment}
+
+rm(list=ls())
+
+```
+
+```{r}
+#load data
+clean <- read.csv("C:/Users/cheno/Desktop/IFLS_all/DATA/R datasets/IFLS_4_5_clean.csv")
+
+#region should be factor
+clean$sc_code <- as.factor(clean$sc_code)
+
+#jl_year should be factor
+clean$jl_year_fired <- as.factor(clean$jl_year_fired)
+
+#consider wage rather than monthly income
+clean$wage_rate <- (clean$wage_prof/4)/clean$tk22a
+clean$wage_rate_H <- (clean$wage_prof_H/4)/clean$tk22a_H
+```
+
+```{r}
+
+
+data1 <- clean %>%
+            select(employed2, job_cat_H, jl_2, age, age_sq, dl06, dependents_young, dependents_old, working_dependents, other_HHM, other_working, sc_code, wave) %>%
+            drop_na()
+
+log1 <- glm(employed2 ~ .,  data = data1)
+summary(log1)
+
+options(scipen = 999)
+wave1<- as.character(round(summary(log1)$coefficients["wave", 4], 18))
+options(scipen = 0)
+
+#test for normality, homoskedasticity
+plot(resid(log1, type = "pearson")~fitted.values(log1))
+plot(data1$employed2~fitted.values(log1))
+
+plot(resid(log1, type = "pearson") ~ jitter(data1$dependents_young))
+plot(resid(log1, type = "pearson") ~ jitter(data1$dependents_old))
+plot(resid(log1, type = "pearson") ~ (data1$age + data1$age_sq))
+
+#look for outliers
+plot(cooks.distance(log1))
+abline(h=1)
+
+coeff_jl_2 <- exp(log1$coefficients["jl_2"])-1
+
+coeff_dependents_young <- exp(log1$coefficients["dependents_young"]) - 1
+
+
+log1b <- glm(employed2 ~ .- sc_code,  data = data1)
+summary(log1b)
+
+
+
+
+anova1 <- anova(log1b, log1, test = "LRT")
+anova1
+```
+
+```{r model2 with year of job loss}
+
+data2 <- clean %>%
+            select(employed2, job_cat_H, jl_year_fired, age, age_sq, dl06, dependents_young, dependents_old, working_dependents, other_HHM, other_working, sc_code, wave) %>%
+            drop_na()
+
+log2 <- glm(employed2 ~ .,  data = data2)
+summary(log2)
+
+log2b <- glm(employed2 ~ .-sc_code,  data = data2)
+summary(log2b)
+
+anova2 <- anova(log2, log2b, test = "LRT")
+anova2
+
+coeff_jl_1 <- exp(log2$coefficients["jl_year_fired1"])-1
+coeff_jl_2 <- exp(log2$coefficients["jl_year_fired2"])-1
+coeff_jl_3 <- exp(log2$coefficients["jl_year_fired3"])-1
+coeff_jl_4 <- exp(log2$coefficients["jl_year_fired4"])-1
+coeff_jl_5 <- exp(log2$coefficients["jl_year_fired5"])-1
+
+#confidence intervals
+
+qt(.025, 12607)
+
+se_jl_1 <- coef(summary(log2))[, "Std. Error"]["jl_year_fired1"]
+se_jl_2 <- coef(summary(log2))[, "Std. Error"]["jl_year_fired2"]
+se_jl_3 <- coef(summary(log2))[, "Std. Error"]["jl_year_fired3"]
+se_jl_4 <- coef(summary(log2))[, "Std. Error"]["jl_year_fired4"]
+se_jl_5 <- coef(summary(log2))[, "Std. Error"]["jl_year_fired5"]
+
+#pred_y1 <- predict(log2, newdata = list(jl_year_fired = seq(1,5, len = 300)), type = "link", se.fit = TRUE)
+
+lower_jl_1 <- exp(coeff_jl_1 + qt(.025, 12607)*se_jl_1)-1
+upper_jl_1 <- exp(coeff_jl_1 + qt(.975, 12607)*se_jl_1)-1
+lower_jl_2 <- exp(coeff_jl_2 + qt(.025, 12607)*se_jl_2)-1
+upper_jl_2 <- exp(coeff_jl_2 + qt(.975, 12607)*se_jl_2)-1
+lower_jl_3 <- exp(coeff_jl_3 + qt(.025, 12607)*se_jl_3)-1
+upper_jl_3 <- exp(coeff_jl_3 + qt(.975, 12607)*se_jl_3)-1
+lower_jl_4 <- exp(coeff_jl_4 + qt(.025, 12607)*se_jl_4)-1
+upper_jl_4 <- exp(coeff_jl_4 + qt(.975, 12607)*se_jl_4)-1
+lower_jl_5 <- exp(coeff_jl_5 + qt(.025, 12607)*se_jl_5)-1
+upper_jl_5 <- exp(coeff_jl_5 + qt(.975, 12607)*se_jl_5)-1
+
+all_upper <- c(upper_jl_1, upper_jl_2, upper_jl_3, upper_jl_4, upper_jl_5) 
+all_lower <- c(lower_jl_1, lower_jl_2, lower_jl_3, lower_jl_4, lower_jl_5)
+all_mid <- c(coeff_jl_1, coeff_jl_2, coeff_jl_3, coeff_jl_4, coeff_jl_5)
+year <- 1:5
+
+all_estimates <- data.frame(all_upper, all_lower, all_mid, year)
+
+all_estimates <- all_estimates %>%
+                      gather(value = "estimate", key = "key", -year)
+
+ggplot(all_estimates, aes(x = year, y = estimate, group = key)) +
+          geom_line()
+          #geom_area()
+          #geom_density()
+
+
+```
+
+```{r}
+
+#hours not corrected for selection bias
+
+data_hours <- clean %>% 
+                select( tk23a2y, jl_2, jl_year_fired, age, age_sq, job_cat, dl06, dependents_young, dependents_old, working_dependents, other_HHM, other_working, sc_code, wave, wage_prof, tk22a, wage_rate) %>%
+                drop_na(- c(wage_prof, tk22a, job_cat, tk23a2y, wage_rate))
+
+
+
+hours1 <- lm(tk22a ~ .- jl_year_fired -wage_rate, data = data_hours)
+summary(hours1)
+
+hours2 <- lm(tk22a ~ .- jl_year_fired - wage_rate, data = data_hours)
+summary(hours2)
+
+```
+
+```{r participation rate}
+
+participation_plot <- clean %>%
+                          select(employed2, employed2_H, age, age_H) %>%
+                          gather(key = "gender", value = "work_status", cols = 1:2) %>%
+                          mutate(age_edit = ifelse(gender == "employed2_H", age_H, age))%>%
+                          select(-c(age, age_H)) %>%
+                          mutate(age = age_edit) %>%
+                          select(-c(age_edit)) %>%
+                          mutate(age_bin = floor(age/2)*2+1) %>%
+                          group_by(age_bin, gender) %>%
+                          summarize(emp_rate = mean(work_status, na.rm = TRUE))
+
+
+age_participation_plot <- ggplot(participation_plot, aes(x = age_bin, y = emp_rate, color = gender)) +
+                              geom_line()+
+                              xlab("age")+
+                              ylab("participation rate")+
+                              scale_color_discrete(name="", breaks=c("employed2", "employed2_H"), labels=c("wives", "husbands"))+
+                              theme(legend.position = "bottom")
+                              
+                              
+
+age_participation_plot
+
+```
+
+
+```{r hours plot}
+
+work_plot <- clean %>%  select(tk22a, tk22a_H, job_cat, job_cat_H, wage_rate, wage_rate_H, wave) %>%
+                        gather(key = "gender", value = "hours", cols = 1:2)%>%
+                        mutate(wage = ifelse(gender == "tk22a", wage_rate, wage_rate_H)) %>%
+                        mutate(job_type = ifelse(gender == "tk22a", job_cat, job_cat_H)) %>%
+                        mutate(gender = ifelse(gender == "tk22a", "wife", "husband")) %>%
+                        select(-c(wage_rate, wage_rate_H, job_cat, job_cat_H)) %>%
+                        filter(!(is.na(job_type)))
+
+industries <- c("unemployed", "self-employed", "self-employed, with employees", "government", "formal business", "casual/temporary")
+
+work_plot$job_type <- industries[work_plot$job_type]
+
+work_plot_2 <- work_plot %>%
+                group_by(job_type, gender) %>%
+                summarize(count = n()) %>%
+                ungroup() %>%
+                group_by(gender) %>%
+                mutate(proportion = count/sum(count))
+
+#distribution of men and women across industries
+gender_industry <- ggplot(work_plot_2, aes(x = job_type, y = proportion, fill = gender)) +
+                        geom_bar(stat="identity", position="dodge")+
+                        scale_x_discrete(labels = function(job_type) str_wrap(job_type, width  = 14))+
+                         theme(legend.position = "bottom")+
+                        scale_fill_manual(name = "", breaks=c("wife", "husband"), labels=c("wives", "husbands"), values = c(hue_pal()(2)[2], hue_pal()(2)[1]))+
+                        xlab("")+
+                        ylab("proportion of husbands/wives")
+
+gender_industry
+
+work_plot_3 <- work_plot %>%
+                group_by(job_type, gender, wave) %>%
+                summarize(count = n()) %>%
+                ungroup() %>%
+                group_by(gender, wave) %>%
+                mutate(proportion = count/sum(count)) %>%
+                mutate(gender_wave = paste0(gender, " IFLS", wave))
+
+#distribution of men and women across industries
+gender_industry_wave <- ggplot(work_plot_3, aes(x = job_type, y = proportion, fill = gender_wave)) +
+                        geom_bar(stat="identity", position="dodge")+
+                        scale_fill_manual(name = "", breaks=c( "husband IFLS4", "husband IFLS5", "wife IFLS4", "wife IFLS5"), labels=c("husbands IFLS4", "husbands IFLS5", "wives IFLS4", "wives IFLS5"), values = c(hue_pal()(2)[2], adjustcolor(hue_pal()(2)[2], transform = diag(c(.7, .7, .7, 1))), hue_pal()(2)[1], adjustcolor(hue_pal()(2)[1], transform = diag(c(.7, .7, .7, 1)))))+
+                        scale_x_discrete(labels = function(job_type) str_wrap(job_type, width  = 14))+
+                         theme(legend.position = "bottom")+
+                        xlab("")+
+                        ylab("proportion of husbands/wives")
+                        
+gender_industry_wave
+
+work_plot <- work_plot %>%
+                  filter(wage != 0, hours != 0)
+
+
+
+
+hours_dist <- ggplot(work_plot, aes(x = hours)) +
+                  geom_density(aes(fill = gender), alpha = .3) +
+                  scale_fill_manual(name = "", breaks=c("wife", "husband"), labels=c("wives", "husbands"), values = c(hue_pal()(2)[2], hue_pal()(2)[1]))+
+                  xlab("average hours worked per week")+
+                  ylab("")+
+                  theme(legend.position = "bottom")
+
+#add log scale
+wage_dist <- ggplot(work_plot, aes(x = wage)) +
+                  geom_density(aes(fill = gender), alpha = .3) +
+                  scale_fill_manual(name = "", breaks=c("wife", "husband"), labels=c("wives", "husbands"), values = c(hue_pal()(2)[2], hue_pal()(2)[1]))+
+                  scale_x_log10()+
+                  xlab("monthly income")+
+                  ylab("")+
+                  theme(legend.position = "bottom")
+                  
+
+hours_dist
+wage_dist
+
+
+
+#wages by industry
+wage_industry <- ggplot(work_plot, aes(y=wage, x = job_type, group = job_type)) +
+                      geom_boxplot(outlier.shape = NA)+
+                      ylim(0, 45000)+
+                      scale_x_discrete(labels = function(job_type) str_wrap(job_type, width  = 10))+
+                      xlab("")+
+                      ylab("hourly wage or wage equivilent (rupiah)")#+
+                      #facet_wrap(~gender)
+                      
+wage_industry
+
+
+
+summary(work_plot$wage)
+summary(work_plot$hours[which(work_plot$gender == "wife" & work_plot$wave == 4)])
+summary(work_plot$hours[which(work_plot$gender == "wife" & work_plot$wave == 5)])
+summary(work_plot$hours[which(work_plot$gender == "husband" & work_plot$wave == 4)])
+summary(work_plot$hours[which(work_plot$gender == "husband" & work_plot$wave == 5)])
+
+
+```
+
+```{r dependents}
+
+#dependents w/ age < 14 for wives age 33
+summary(clean$dependents[which(clean$age<34 & clean$age>32)])
+
+
+#TABLE FORMATTING
+
+#orig_opt <- options()$qwraps2_markup
+#options(qwraps2_markup = "markdown")
+
+
+#summary_table(clean, list("age" = list("mean" = ~ mean(age))))
+
+
+
+
+
+```
+
+```{r probit selection model, like model1}
+data_heck <- clean %>% 
+                select(employed2, job_cat_H, tk23a2y, jl_2, jl_year_fired, age, age_sq, job_cat, dl06, dependents_young, dependents_old, working_dependents, other_HHM, other_working, sc_code, wave, wage_prof, wage_rate, tk22a) %>%
+                drop_na(- c(wage_prof, wage_rate, tk22a, job_cat, tk23a2y))
+
+data_prob <- data_heck %>%
+              select(-c(wage_prof, wage_rate, tk22a, job_cat, tk23a2y))
+
+probit1 <- glm(employed2 ~ . - jl_year_fired, family = binomial (link = "probit"), data = data_prob)
+summary(probit1)
+
+#one extreme outlier??
+plot(resid(probit1, type = "pearson") ~ jitter(fitted.values(probit1)))
+
+
+probit2 <- glm(employed2 ~ . - jl_2, family = binomial (link = "probit"), data = data_prob)
+summary(probit2)
+
+#add mills ratios to data
+data_heck$mills1 <- invMillsRatio(probit1)$IMR1
+data_heck$mills2 <- invMillsRatio(probit2)$IMR1
+
+#filter to remove unemployed
+data_heck <- data_heck %>%
+                filter(as.numeric(job_cat) != 1)
+
+```
+
+```{r heckman1 }
+
+heckit1 <- lm(tk22a ~ . - jl_year_fired - employed2 - job_cat_H - mills2 - wage_prof, data = data_heck)
+summary(heckit1)
+
+heckit1b <- lm(tk22a ~ . - sc_code - jl_year_fired - employed2 - job_cat_H - mills2 -wage_prof, data = data_heck)
+summary(heckit1b)
+
+anova_heck1 <- anova(heckit1, heckit1b, test = "LRT")
+
+options(scipen = 999)
+anova_heck_p1 <- as.character(round(anova_heck1$`Pr(>Chi)`[2],6))
+options(scipen = 0)
+
+heckit2 <- lm(tk22a ~ . - jl_2 - employed2 - job_cat_H - mills1 -wage_prof, data = data_heck)
+summary(heckit2)
+
+heckit2b <- lm(tk22a ~ . - sc_code - jl_2 - employed2 - job_cat_H - mills1 -wage_prof, data = data_heck)
+summary(heckit2b)
+
+anova_heck2 <- anova(heckit2, heckit2b, test = "LRT")
+
+options(scipen = 999)
+anova_heck_p2 <- as.character(round(anova_heck2$`Pr(>Chi)`[2],6))
+options(scipen = 0)
+
+
+
+heckit3 <- lm(tk22a ~ . - jl_year_fired - employed2 - job_cat_H - mills2 - wage_rate, data = data_heck)
+summary(heckit3)
+
+```
+
+```{r stargazer}
+
+stargazer(log1, log2, title="Results", align=TRUE, no.space=TRUE, style = "aer", single.row = TRUE,
+              add.lines = list(c("region fixed effects", "***","***"), c("survey wave fixed effects", "***", "***")))
+
+```
+
+```{r probit stargazer}
+
+stargazer(probit1, probit2, title="Probit Estimation for Selection into Employment", align=TRUE, no.space=TRUE, style = "aer", single.row = TRUE,
+              add.lines = list(c("region fixed effects", "***","***"), c("survey wave fixed effects", "***", "***")))
+
+
+```
+
+```{r, stargazer for heckman model}
+
+#probit selection
+
+stargazer(heckit1, heckit2, title="Estimation of Hours with Heckman Correction", align=TRUE, no.space=TRUE, style = "aer", single.row = TRUE) 
+
+```
+
+```{r summary tables}
+
+#summary of job losses
+
+jl_data <- clean %>%
+                  select(wave, jl)%>%
+                  group_by(wave, jl) %>%
+                  summarize(count = n())
+
+jl_data_2 <- clean %>%
+                  select(wave, jl_2)%>%
+                  group_by(wave, jl_2) %>%
+                  summarize(count = n())
+
+jl_year_data <- clean %>%
+                  select(wave, jl_year, jl_year_fired)%>%
+                  group_by(wave, jl_year) %>%
+                  summarize(count = n(), fired = sum(jl_year_fired != 0)) %>%
+                  ungroup() %>%
+                  filter(jl_year != 0) %>%
+                  gather(key = stat, value = jobs, cols = 3:4) %>%
+                  mutate(wave_stat = paste0("wave", wave, " - ", stat))%>%
+                  select( -c(wave, stat))%>%
+                  spread(wave_stat, jobs)%>%
+                  rbind(c("total", colSums(jl_year_data[,2:5])))
+
+stargazer(jl_year_data, summary = FALSE, rownames = FALSE)
+```
+
+```{r labor force participation summary}
+
+labor_stats <- clean %>%
+                  select(wave, employed2, employed2_H, tk22a, tk22a_H, wage_prof, wage_prof_H)%>%
+                  gather(key = var, value = value, cols = 2:7) %>%
+                  group_by(wave, var) %>%
+                  filter(!(is.na(value))) %>%
+                  summarize(mean = round(mean(as.numeric(value)),4), sd = round(sd(value),4)) %>%
+                  gather(key = stat, value = value, cols = 3:4) %>%
+                  mutate(wave_stat = paste0("wave", wave, " - ", stat)) %>%
+                  ungroup() %>%
+                  select( -c(wave, stat)) %>%
+                  spread(wave_stat, value)
+                  
+
+
+stargazer(labor_stats, summary = FALSE, rownames = FALSE)
+
+#lne to test git hub
+```
+
+```{r summary of dependents}
+
+dependents_sum <- clean %>%
+                        select(dependents_young, dependents_old, working_dependents, other_HHM, other_working)
+
+stargazer(dependents_sum, summary.stat = c("mean", "sd"))
+
+
+
+```
