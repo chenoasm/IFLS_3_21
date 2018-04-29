@@ -20,6 +20,25 @@ library(stringr)
 library(grDevices)
 library(qwraps2)
 library(stargazer)
+library(extrafont)
+#library(Cairo)
+```
+
+```{r change fonts}
+
+font_import()  
+
+
+n#mainfont <- "Garamond"
+#CairoFonts(regular = paste(mainfont,"style=Regular",sep=":"),
+#             bold = paste(mainfont,"style=Bold",sep=":"),
+#             italic = paste(mainfont,"style=Italic",sep=":"),
+#             bolditalic = paste(mainfont,"style=Bold Italic,BoldItalic",sep=":"))
+#pdf <- CairoPDF
+#png <- CairoPNG
+
+
+
 ```
 
 ```{r clear environment}
@@ -135,13 +154,17 @@ year <- 1:5
 
 all_estimates <- data.frame(all_upper, all_lower, all_mid, year)
 
-all_estimates <- all_estimates %>%
-                      gather(value = "estimate", key = "key", -year)
+#all_estimates <- all_estimates %>%
+#                      gather(value = "estimate", key = "key", -year)
 
-ggplot(all_estimates, aes(x = year, y = estimate, group = key)) +
-          geom_line()
-          #geom_area()
-          #geom_density()
+ggplot(all_estimates, aes(x = year)) +
+          geom_ribbon(aes(ymin = all_lower, ymax = all_upper), fill = "grey70") +
+          geom_line(aes(y = all_mid)) +
+          geom_segment(aes(x = 1, y = 0, xend = 5, yend = 0), linetype = "dotted", color = "black", size = 1)+
+          xlab("years since job loss")+
+          ylab("mean increase in odds of wife's labor force\nparticipation attributable to husband's job loss")+
+          scale_x_continuous(breaks = year, labels = paste0(year - 1, "-", year))
+          
 
 
 ```
@@ -261,7 +284,7 @@ wage_dist <- ggplot(work_plot, aes(x = wage)) +
                   geom_density(aes(fill = gender), alpha = .3) +
                   scale_fill_manual(name = "", breaks=c("wife", "husband"), labels=c("wives", "husbands"), values = c(hue_pal()(2)[2], hue_pal()(2)[1]))+
                   scale_x_log10()+
-                  xlab("monthly income")+
+                  xlab("hourly wage or wage equivalent distribution (2014 rupiah)")+
                   ylab("")+
                   theme(legend.position = "bottom")
                   
@@ -277,7 +300,7 @@ wage_industry <- ggplot(work_plot, aes(y=wage, x = job_type, group = job_type)) 
                       ylim(0, 45000)+
                       scale_x_discrete(labels = function(job_type) str_wrap(job_type, width  = 10))+
                       xlab("")+
-                      ylab("hourly wage or wage equivilent (rupiah)")#+
+                      ylab("hourly wage or wage equivilent (2014 rupiah)")#+
                       #facet_wrap(~gender)
                       
 wage_industry
@@ -289,26 +312,6 @@ summary(work_plot$hours[which(work_plot$gender == "wife" & work_plot$wave == 4)]
 summary(work_plot$hours[which(work_plot$gender == "wife" & work_plot$wave == 5)])
 summary(work_plot$hours[which(work_plot$gender == "husband" & work_plot$wave == 4)])
 summary(work_plot$hours[which(work_plot$gender == "husband" & work_plot$wave == 5)])
-
-
-```
-
-```{r dependents}
-
-#dependents w/ age < 14 for wives age 33
-summary(clean$dependents[which(clean$age<34 & clean$age>32)])
-
-
-#TABLE FORMATTING
-
-#orig_opt <- options()$qwraps2_markup
-#options(qwraps2_markup = "markdown")
-
-
-#summary_table(clean, list("age" = list("mean" = ~ mean(age))))
-
-
-
 
 
 ```
@@ -420,7 +423,9 @@ jl_year_data <- clean %>%
                   gather(key = stat, value = jobs, cols = 3:4) %>%
                   mutate(wave_stat = paste0("wave", wave, " - ", stat))%>%
                   select( -c(wave, stat))%>%
-                  spread(wave_stat, jobs)%>%
+                  spread(wave_stat, jobs)
+
+jl_year_data <- jl_year_data %>%
                   rbind(c("total", colSums(jl_year_data[,2:5])))
 
 stargazer(jl_year_data, summary = FALSE, rownames = FALSE)
@@ -444,7 +449,7 @@ labor_stats <- clean %>%
 
 stargazer(labor_stats, summary = FALSE, rownames = FALSE)
 
-#lne to test git hub
+
 ```
 
 ```{r summary of dependents}
