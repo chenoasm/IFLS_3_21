@@ -220,7 +220,7 @@ IFLS_4_5$wage_prof_H <- ifelse(!is.na(IFLS_4_5$wage_prof_H) & IFLS_4_5$wave == 4
 
 #remove workers with no hours (none removed)
 IFLS_4_5 <- IFLS_4_5 %>%
-              filter(!(!(is.na(IFLS_4_5$tk22a)) & IFLS_4_5$tk22a == 0))
+              filter(!(!(is.na(IFLS_4_5$tk22a)) & IFLS_4_5$tk22a == 0), !(!(is.na(IFLS_4_5$tk22a_H)) & IFLS_4_5$tk22a_H == 0))
 
 #remove workers with no wage << not an issue (none removed)
 IFLS_4_5 <- IFLS_4_5 %>%

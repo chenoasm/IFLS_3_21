@@ -166,7 +166,6 @@ ggplot(all_estimates, aes(x = year)) +
           scale_x_continuous(breaks = year, labels = paste0(year - 1, "-", year))
           
 
-
 ```
 
 ```{r}
@@ -225,7 +224,7 @@ work_plot <- clean %>%  select(tk22a, tk22a_H, job_cat, job_cat_H, wage_rate, wa
                         select(-c(wage_rate, wage_rate_H, job_cat, job_cat_H)) %>%
                         filter(!(is.na(job_type)))
 
-industries <- c("unemployed", "self-employed", "self-employed, with employees", "government", "formal business", "casual/temporary")
+industries <- c("unemployed / not in labor force", "self-employed", "self-employed, with employees", "government", "formal business", "casual/temporary")
 
 work_plot$job_type <- industries[work_plot$job_type]
 
@@ -300,10 +299,20 @@ wage_industry <- ggplot(work_plot, aes(y=wage, x = job_type, group = job_type)) 
                       ylim(0, 45000)+
                       scale_x_discrete(labels = function(job_type) str_wrap(job_type, width  = 10))+
                       xlab("")+
-                      ylab("hourly wage or wage equivilent (2014 rupiah)")#+
-                      #facet_wrap(~gender)
+                      ylab("hourly wage or wage equivilent (2014 rupiah)") +
+                      facet_wrap(~gender)
                       
 wage_industry
+
+
+hours_industry <- ggplot(work_plot, aes(y=hours, x = job_type, group = job_type)) +
+                      geom_boxplot(outlier.shape = NA)+
+                      #ylim(0, 45000)+
+                      scale_x_discrete(labels = function(job_type) str_wrap(job_type, width  = 10))+
+                      xlab("")+
+                      ylab("hours worked per week")
+
+hours_industry
 
 
 
@@ -348,6 +357,27 @@ data_heck <- data_heck %>%
 
 heckit1 <- lm(tk22a ~ . - jl_year_fired - employed2 - job_cat_H - mills2 - wage_prof, data = data_heck)
 summary(heckit1)
+
+heckit1_logged <- lm(tk22a ~ . - wage_rate + log(wage_rate) - jl_year_fired - employed2 - job_cat_H - mills2 - wage_prof, data = data_heck)
+summary(heckit1_logged)
+
+#seems like log wage is a good fit
+plot((data_heck$wage_rate[which(!(is.na(data_heck$wage_rate))& !(is.na(data_heck$tk23a2y)))]), resid(heckit1_logged), xlim = c(0, 100000))
+
+plot((data_heck$wage_rate[which(!(is.na(data_heck$wage_rate))& !(is.na(data_heck$tk23a2y)))]), resid(heckit1), xlim = c(0, 100000))
+
+
+heckit1_interact <- lm(tk22a ~ . + (job_cat * wage_rate) - jl_year_fired - employed2 - job_cat_H - mills2 - wage_prof, data = data_heck)
+summary(heckit1_interact)
+
+heckit1_logged_interact <- lm(tk22a ~ . - wage_rate + log(wage_rate) + (job_cat * log(wage_rate)) - jl_year_fired - employed2 - job_cat_H - mills2 - wage_prof, data = data_heck)
+summary(heckit1_logged_interact)
+
+heckit1_logged_interact_no_dep <- lm(tk22a ~ . - wage_rate + log(wage_rate) + (job_cat * log(wage_rate)) - jl_year_fired - employed2 - job_cat_H - mills2 - wage_prof - dependents_young - dependents_old - working_dependents - other_HHM - other_working, data = data_heck)
+summary(heckit1_logged_interact_no_dep)
+
+
+
 
 heckit1b <- lm(tk22a ~ . - sc_code - jl_year_fired - employed2 - job_cat_H - mills2 -wage_prof, data = data_heck)
 summary(heckit1b)
@@ -434,7 +464,7 @@ stargazer(jl_year_data, summary = FALSE, rownames = FALSE)
 ```{r labor force participation summary}
 
 labor_stats <- clean %>%
-                  select(wave, employed2, employed2_H, tk22a, tk22a_H, wage_prof, wage_prof_H)%>%
+                  select(wave, employed2, employed2_H, tk22a, tk22a_H, wage_rate, wage_rate_H)%>%
                   gather(key = var, value = value, cols = 2:7) %>%
                   group_by(wave, var) %>%
                   filter(!(is.na(value))) %>%
