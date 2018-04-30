@@ -327,7 +327,7 @@ summary(work_plot$hours[which(work_plot$gender == "husband" & work_plot$wave == 
 
 ```{r probit selection model, like model1}
 data_heck <- clean %>% 
-                select(employed2, job_cat_H, tk23a2y, jl_2, jl_year_fired, age, age_sq, job_cat, dl06, dependents_young, dependents_old, working_dependents, other_HHM, other_working, sc_code, wave, wage_prof, wage_rate, tk22a) %>%
+                select(jl_2, jl_year_fired, employed2, job_cat_H, age, age_sq, wage_prof, wage_rate, tk23a2y, job_cat, dl06, dependents_young, dependents_old, working_dependents, other_HHM, other_working, sc_code, wave, tk22a) %>%
                 drop_na(- c(wage_prof, wage_rate, tk22a, job_cat, tk23a2y))
 
 data_prob <- data_heck %>%
@@ -355,55 +355,51 @@ data_heck <- data_heck %>%
 
 ```{r heckman1 }
 
-heckit1 <- lm(tk22a ~ . - jl_year_fired - employed2 - job_cat_H - mills2 - wage_prof, data = data_heck)
+heckit1 <- lm(tk22a ~ . -wage_rate + log(wage_rate)- jl_year_fired - employed2 - job_cat_H - mills2 - wage_prof - dependents_young - dependents_old - working_dependents - other_HHM - other_working, data = data_heck)
 summary(heckit1)
 
-heckit1_logged <- lm(tk22a ~ . - wage_rate + log(wage_rate) - jl_year_fired - employed2 - job_cat_H - mills2 - wage_prof, data = data_heck)
-summary(heckit1_logged)
+heckit1_interact <- lm(tk22a ~ . + (job_cat * log(wage_rate))-wage_rate + log(wage_rate)- jl_year_fired - employed2 - job_cat_H - mills2 - wage_prof - dependents_young - dependents_old - working_dependents - other_HHM - other_working, data = data_heck)
+summary(heckit1)
+
+#heckit1_logged <- lm(tk22a ~ . - wage_rate + log(wage_rate) - jl_year_fired - employed2 - job_cat_H - mills2 - wage_prof, data = data_heck)
+#summary(heckit1_logged)
 
 #seems like log wage is a good fit
-plot((data_heck$wage_rate[which(!(is.na(data_heck$wage_rate))& !(is.na(data_heck$tk23a2y)))]), resid(heckit1_logged), xlim = c(0, 100000))
+#plot((data_heck$wage_rate[which(!(is.na(data_heck$wage_rate))& !(is.na(data_heck$tk23a2y)))]), resid(heckit1_logged), xlim = c(0, 100000))
 
-plot((data_heck$wage_rate[which(!(is.na(data_heck$wage_rate))& !(is.na(data_heck$tk23a2y)))]), resid(heckit1), xlim = c(0, 100000))
-
-
-heckit1_interact <- lm(tk22a ~ . + (job_cat * wage_rate) - jl_year_fired - employed2 - job_cat_H - mills2 - wage_prof, data = data_heck)
-summary(heckit1_interact)
-
-heckit1_logged_interact <- lm(tk22a ~ . - wage_rate + log(wage_rate) + (job_cat * log(wage_rate)) - jl_year_fired - employed2 - job_cat_H - mills2 - wage_prof, data = data_heck)
-summary(heckit1_logged_interact)
-
-heckit1_logged_interact_no_dep <- lm(tk22a ~ . - wage_rate + log(wage_rate) + (job_cat * log(wage_rate)) - jl_year_fired - employed2 - job_cat_H - mills2 - wage_prof - dependents_young - dependents_old - working_dependents - other_HHM - other_working, data = data_heck)
-summary(heckit1_logged_interact_no_dep)
+#plot((data_heck$wage_rate[which(!(is.na(data_heck$wage_rate))& !(is.na(data_heck$tk23a2y)))]), resid(heckit1), xlim = c(0, 100000))
 
 
+#heckit1_interact <- lm(tk22a ~ . + (job_cat * wage_rate) - jl_year_fired - employed2 - job_cat_H - mills2 - wage_prof, data = data_heck)
+#summary(heckit1_interact)
 
+#heckit1_logged_interact <- lm(tk22a ~ . - wage_rate + log(wage_rate) + (job_cat * log(wage_rate)) - jl_year_fired - employed2 - job_cat_H - mills2 - wage_prof, data = data_heck)
+#summary(heckit1_logged_interact)
 
-heckit1b <- lm(tk22a ~ . - sc_code - jl_year_fired - employed2 - job_cat_H - mills2 -wage_prof, data = data_heck)
-summary(heckit1b)
+#heckit1_logged_interact_no_dep <- lm(tk22a ~ . - wage_rate + log(wage_rate) + (job_cat * log(wage_rate)) - jl_year_fired - employed2 - job_cat_H - mills2 - wage_prof - dependents_young - dependents_old - working_dependents - other_HHM - other_working, data = data_heck)
+#summary(heckit1_logged_interact_no_dep)
 
-anova_heck1 <- anova(heckit1, heckit1b, test = "LRT")
+#heckit1b <- lm(tk22a ~ . - sc_code - jl_year_fired - employed2 - job_cat_H - mills2 -wage_prof, data = data_heck)
+#summary(heckit1b)
 
-options(scipen = 999)
-anova_heck_p1 <- as.character(round(anova_heck1$`Pr(>Chi)`[2],6))
-options(scipen = 0)
+#anova_heck1 <- anova(heckit1, heckit1b, test = "LRT")
 
-heckit2 <- lm(tk22a ~ . - jl_2 - employed2 - job_cat_H - mills1 -wage_prof, data = data_heck)
+#options(scipen = 999)
+#anova_heck_p1 <- as.character(round(anova_heck1$`Pr(>Chi)`[2],6))
+#options(scipen = 0)
+
+heckit2 <- lm(tk22a ~ . -wage_rate + log(wage_rate)- jl_2 - employed2 - job_cat_H - mills1 - wage_prof - dependents_young - dependents_old - working_dependents - other_HHM - other_working, data = data_heck)
 summary(heckit2)
 
-heckit2b <- lm(tk22a ~ . - sc_code - jl_2 - employed2 - job_cat_H - mills1 -wage_prof, data = data_heck)
-summary(heckit2b)
 
-anova_heck2 <- anova(heckit2, heckit2b, test = "LRT")
+#heckit2b <- lm(tk22a ~ . - sc_code - jl_2 - employed2 - job_cat_H - mills1 -wage_prof, data = data_heck)
+#summary(heckit2b)
 
-options(scipen = 999)
-anova_heck_p2 <- as.character(round(anova_heck2$`Pr(>Chi)`[2],6))
-options(scipen = 0)
+#anova_heck2 <- anova(heckit2, heckit2b, test = "LRT")
 
-
-
-heckit3 <- lm(tk22a ~ . - jl_year_fired - employed2 - job_cat_H - mills2 - wage_rate, data = data_heck)
-summary(heckit3)
+#options(scipen = 999)
+#anova_heck_p2 <- as.character(round(anova_heck2$`Pr(>Chi)`[2],6))
+#options(scipen = 0)
 
 ```
 
@@ -426,7 +422,7 @@ stargazer(probit1, probit2, title="Probit Estimation for Selection into Employme
 
 #probit selection
 
-stargazer(heckit1, heckit2, title="Estimation of Hours with Heckman Correction", align=TRUE, no.space=TRUE, style = "aer", single.row = TRUE) 
+stargazer(heckit1, heckit1_interact, heckit2, title="Estimation of Hours with Heckman Correction", align=TRUE, no.space=TRUE, style = "aer") 
 
 ```
 
