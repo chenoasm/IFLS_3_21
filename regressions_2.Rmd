@@ -91,7 +91,7 @@ abline(h=1)
 coeff_jl_2 <- exp(log1$coefficients["jl_2"])-1
 
 coeff_dependents_young <- exp(log1$coefficients["dependents_young"]) - 1
-
+coeff_dependents_working <- exp(log1$coefficients["dependents_young"]) - 1
 
 log1b <- glm(employed2 ~ .- sc_code,  data = data1)
 summary(log1b)
@@ -111,6 +111,17 @@ data2 <- clean %>%
 
 log2 <- glm(employed2 ~ .,  data = data2)
 summary(log2)
+
+#coefficients
+
+coeff_jl_year2 <- exp(log2$coefficients["jl_year_fired2"])-1
+coeff_jl_year3 <- exp(log2$coefficients["jl_year_fired3"])-1
+
+
+
+
+
+
 
 log2b <- glm(employed2 ~ .-sc_code,  data = data2)
 summary(log2b)
