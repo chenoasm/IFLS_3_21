@@ -66,7 +66,7 @@ clean$wage_rate_H <- (clean$wage_prof_H/4)/clean$tk22a_H
 
 
 data1 <- clean %>%
-            select(employed2, job_cat_H, jl_2, age, age_sq, dl06, dependents_young, dependents_old, working_dependents, other_HHM, other_working, sc_code, wave) %>%
+            select(employed2, jl_2,  age, age_sq, dl06, job_cat_H, dependents_young, dependents_old, working_dependents, other_HHM, other_working, sc_code, wave) %>%
             drop_na()
 
 log1 <- glm(employed2 ~ .,  data = data1)
@@ -106,7 +106,7 @@ anova1
 ```{r model2 with year of job loss}
 
 data2 <- clean %>%
-            select(employed2, job_cat_H, jl_year_fired, age, age_sq, dl06, dependents_young, dependents_old, working_dependents, other_HHM, other_working, sc_code, wave) %>%
+            select(employed2, jl_year_fired, age, age_sq, dl06, job_cat_H, dependents_young, dependents_old, working_dependents, other_HHM, other_working, sc_code, wave) %>%
             drop_na()
 
 log2 <- glm(employed2 ~ .,  data = data2)
@@ -129,6 +129,9 @@ summary(log2b)
 anova2 <- anova(log2, log2b, test = "LRT")
 anova2
 
+```
+
+```{r ribbon_plot}
 coeff_jl_1 <- exp(log2$coefficients["jl_year_fired1"])-1
 coeff_jl_2 <- exp(log2$coefficients["jl_year_fired2"])-1
 coeff_jl_3 <- exp(log2$coefficients["jl_year_fired3"])-1
@@ -338,7 +341,7 @@ summary(work_plot$hours[which(work_plot$gender == "husband" & work_plot$wave == 
 
 ```{r probit selection model, like model1}
 data_heck <- clean %>% 
-                select(jl_2, jl_year_fired, employed2, job_cat_H, age, age_sq, wage_prof, wage_rate, tk23a2y, job_cat, dl06, dependents_young, dependents_old, working_dependents, other_HHM, other_working, sc_code, wave, tk22a) %>%
+                select(jl_2, jl_year_fired, employed2, job_cat_H, age, age_sq, wage_prof, wage_rate,  dl06, tk23a2y, job_cat, dependents_young, dependents_old, working_dependents, other_HHM, other_working, sc_code, wave, tk22a) %>%
                 drop_na(- c(wage_prof, wage_rate, tk22a, job_cat, tk23a2y))
 
 data_prob <- data_heck %>%
@@ -416,14 +419,21 @@ summary(heckit2)
 
 ```{r stargazer}
 
-stargazer(log1, log2, title="Results", align=TRUE, no.space=TRUE, style = "aer", single.row = TRUE,
+
+stargazer(log1, log2, title="Results", align=TRUE, no.space=TRUE, style = "aer", 
               add.lines = list(c("region fixed effects", "***","***"), c("survey wave fixed effects", "***", "***")))
 
 ```
 
 ```{r probit stargazer}
 
-stargazer(probit1, probit2, title="Probit Estimation for Selection into Employment", align=TRUE, no.space=TRUE, style = "aer", single.row = TRUE,
+labels1 <-   c("husband's job loss: past five years", "husband's job loss: past year", "husband's job loss: 1-2 years ago", "husband's job loss: 2-3 years ago", "husband's job loss: 3-4 years ago", "husband's job loss: 4-5 years ago", "wife's age", "wife's age squared", "wife's education : elementary", "wife's education : junior high", "wife's education : senior high", "wife's education : advanced degree", "husband's job: self-employed", "husband's job: self-employed, with employees", "husband's job: government", "husband's job: formal business", "husband's job: casual/temporary", "number of dependents (age $\\leq$ 5)", "number of dependents (6 $\\leq$ age $\\leq$ 14)", "number of employed dependents (age $\\leq$ 14)", "number of other household members", "number of other employed household members")
+
+
+
+
+
+stargazer(probit1, probit2, title="Probit Estimation for Selection into Employment", align=TRUE, no.space=TRUE, style = "aer", single.row = TRUE, covariate.labels = labels1,
               add.lines = list(c("region fixed effects", "***","***"), c("survey wave fixed effects", "***", "***")))
 
 
@@ -431,9 +441,10 @@ stargazer(probit1, probit2, title="Probit Estimation for Selection into Employme
 
 ```{r, stargazer for heckman model}
 
-#probit selection
+#labels
+labels2 <- c("husband's job loss: past five years", "husband's job loss: past year", "husband's job loss: 1-2 years ago", "husband's job loss: 2-3 years ago", "husband's job loss: 3-4 years ago", "husband's job loss: 4-5 years ago", "wife's age", "wife's age squared", "wife's education : elementary", "wife's education : junior high", "wife's education : senior high", "wife's education : advanced degree", "job tenure (in years)", "wife's job: self-employed, with employees", "wife's job: government", "wife's job: formal business", "wife's job: casual/temporary")
 
-stargazer(heckit1, heckit1_interact, heckit2, title="Estimation of Hours with Heckman Correction", align=TRUE, no.space=TRUE, style = "aer") 
+stargazer(heckit1, heckit1_interact, heckit2, title="Estimation of Hours with Heckman Correction", covariate.labels = labels2, dep.var.labels = "",  align=TRUE, no.space=TRUE, style = "aer") 
 
 ```
 
